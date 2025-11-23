@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>{{ tool.seo_title if tool and tool.seo_title else (settings.SITE_NAME + ' - ' + settings.SITE_TAGLINE) }}</title>
+    <meta name="description" content="{{ tool.seo_description if tool and tool.seo_description else settings.DEFAULT_SEO_DESCRIPTION }}">
+    {% if tool and tool.keywords %}
+    <meta name="keywords" content="{{ tool.keywords if tool.keywords is string else tool.keywords|join(', ') }}">
+    {% endif %}
+    <link rel="canonical" href="{{ request.url }}">
+    
+    <!-- Geo & Language Tags -->
+    <meta name="language" content="Turkish">
+    <meta name="geo.region" content="TR">
+    <meta name="geo.placename" content="Turkey">
+    <meta http-equiv="content-language" content="tr">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="{{ tool.seo_title if tool and tool.seo_title else 'İsviçre Çakısı - Hepsi Bir Arada Dijital Araçlar' }}">
+    <meta property="og:description" content="{{ tool.seo_description if tool and tool.seo_description else 'Gündelik dijital işleriniz için hepsi bir arada, güvenli ve hızlı araçlar.' }}">
+    <meta property="og:locale" content="tr_TR">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.url }}">
+    <meta property="twitter:title" content="{{ tool.seo_title if tool and tool.seo_title else 'İsviçre Çakısı - Hepsi Bir Arada Dijital Araçlar' }}">
+    <meta property="twitter:description" content="{{ tool.seo_description if tool and tool.seo_description else 'Gündelik dijital işleriniz için hepsi bir arada, güvenli ve hızlı araçlar.' }}">
+
+    <!-- Schema.org JSON-LD -->
+    {% if tool %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "{{ tool.title }}",
+      "description": "{{ tool.seo_description }}",
+      "operatingSystem": "Web",
+      "applicationCategory": "{{ tool.category.value }}",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TRY"
+      },
+      "inLanguage": "tr-TR"
+    }
+    </script>
+    {% else %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "İsviçre Çakısı",
+      "description": "Gündelik dijital işleriniz için hepsi bir arada, güvenli ve hızlı online araçlar",
+      "url": "{{ request.base_url }}",
+      "inLanguage": "tr-TR",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ request.base_url }}?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    {% endif %}
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-white">
+    <nav class="p-4 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-xl font-bold text-emerald-400 tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <span>🇨🇭</span>
+                <span>İsviçre Çakısı</span>
+            </a>
+            <div class="text-xs text-slate-500 font-mono">v0.1.0</div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto p-6" hx-boost="true">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

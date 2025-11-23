@@ -1,0 +1,73 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ mode: 'encode' }">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/url-encoder/convert',
+            input_type='text',
+            button_text='Dönüştür',
+            title='Girdi',
+            title_icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+
+
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-3">İşlem Modu</label>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="encode" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Encode (Kodla)</span>
+                            <span class="block text-xs text-slate-500">Metin -> URL</span>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="decode" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Decode (Çöz)</span>
+                            <span class="block text-xs text-slate-500">URL -> Metin</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        {% endcall %}
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+    {{ card_comp.render(
+        title="URL-Safe Kodlama",
+        description="Özel karakterleri URL-safe formata dönüştürün.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="İki Yönlü Dönüşüm",
+        description="Metinden URL koduna ve URL kodundan metne.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="API Geliştirme",
+        description="REST API ve form gönderimlerini test edin.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>'
+    ) }}
+</div>
+{% endblock %}

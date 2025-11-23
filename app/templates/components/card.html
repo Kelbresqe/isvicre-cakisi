@@ -1,0 +1,38 @@
+{# Card component for tools and features #}
+{% macro render(title, description, icon=None, href=None, badge=None) %}
+{% set tag = 'a' if href else 'div' %}
+<{{ tag }} {% if href %}href="{{ href }}"{% endif %} 
+    class="group relative h-full flex flex-col bg-slate-800/50 border border-slate-700/50 rounded-xl shadow-lg hover:shadow-emerald-900/20 transition-all duration-300 overflow-hidden {% if href %}cursor-pointer hover:-translate-y-1 hover:border-emerald-500/50{% endif %}">
+    
+    <!-- Badge -->
+    {% if badge %}
+    <div class="absolute top-4 right-4">
+        <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full border border-emerald-500/20">
+            {{ badge }}
+        </span>
+    </div>
+    {% endif %}
+    
+    <div class="p-6 flex-1">
+        <!-- Icon -->
+        {% if icon %}
+        <div class="w-12 h-12 bg-slate-900/50 rounded-lg p-2.5 text-emerald-500 mb-4 group-hover:scale-110 group-hover:text-emerald-400 transition-all border border-slate-700/50 group-hover:border-emerald-500/30">
+            {{ icon|safe }}
+        </div>
+        {% endif %}
+        
+        <!-- Content -->
+        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+            {{ title }}
+        </h3>
+        <p class="text-slate-400 text-sm leading-relaxed">
+            {{ description }}
+        </p>
+    </div>
+    
+    <!-- Hover effect -->
+    {% if href %}
+    <div class="absolute inset-0 border-2 border-transparent group-hover:border-indigo-500 rounded-xl transition-colors pointer-events-none"></div>
+    {% endif %}
+</{{ tag }}>
+{% endmacro %}

@@ -1,0 +1,197 @@
+<div x-data="{ 
+    isDragging: false, 
+    files: [], 
+    url: '',
+    previewUrl: null,
+    multiple: {{ multiple|default(False)|tojson }},
+    
+    handleDrop(e) {
+        this.isDragging = false;
+        const droppedFiles = Array.from(e.dataTransfer.files);
+        if (droppedFiles.length > 0) this.addFiles(droppedFiles);
+    },
+    
+    handleFileSelect(e) {
+        const selectedFiles = Array.from(e.target.files);
+        if (selectedFiles.length > 0) this.addFiles(selectedFiles);
+    },
+    
+    addFiles(newFiles) {
+        if (this.multiple) {
+            // Filter out duplicates based on name and size
+            const existingKeys = new Set(this.files.map(f => f.name + f.size));
+            const uniqueFiles = newFiles.filter(f => !existingKeys.has(f.name + f.size));
+            this.files = [...this.files, ...uniqueFiles];
+        } else {
+            this.files = [newFiles[0]];
+        }
+        
+        this.url = '';
+        this.updatePreview();
+    },
+    
+    removeFile(index) {
+        this.files = this.files.filter((_, i) => i !== index);
+        if (this.files.length === 0) {
+            this.clear();
+        } else {
+            this.updatePreview();
+        }
+    },
+    
+    updatePreview() {
+        if (this.files.length === 1 && this.files[0].type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => this.previewUrl = e.target.result;
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            this.previewUrl = null;
+        }
+    },
+    
+    clear() {
+        this.files = [];
+        this.url = '';
+        this.previewUrl = null;
+        $refs.fileInput.value = '';
+    },
+
+    formatSize(size) {
+        const units = ['B', 'KB', 'MB', 'GB'];
+        let i = 0;
+        while (size >= 1024 && i < units.length - 1) {
+            size /= 1024;
+            i++;
+        }
+        return `${size.toFixed(2)} ${units[i]}`;
+    }
+}" 
+class="w-full">
+
+    <!-- Drop Zone -->
+    <div 
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop($event)"
+        class="relative group cursor-pointer"
+    >
+        <input 
+            x-ref="fileInput"
+            type="file" 
+            name="files" 
+            :multiple="multiple"
+            class="absolute inset-0 w-full h-full opacity-0 z-50 cursor-pointer"
+            @change="handleFileSelect"
+        >
+        
+        <div class="border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300"
+             :class="{
+                'border-emerald-500 bg-emerald-500/10': isDragging,
+                'border-slate-700 bg-slate-800/50 hover:border-emerald-500/50 hover:bg-slate-800': !isDragging && files.length === 0,
+                'border-emerald-500/50 bg-slate-800': files.length > 0
+             }">
+             
+            <!-- Empty State -->
+            <div x-show="files.length === 0" class="space-y-4 pointer-events-none">
+                <div class="w-16 h-16 mx-auto bg-slate-700/50 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <svg class="w-8 h-8 text-slate-400 group-hover:text-emerald-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-lg font-medium text-slate-200">
+                        <span x-text="multiple ? 'Dosyaları' : 'Dosyayı'"></span> Buraya Sürükleyin
+                    </p>
+                    <p class="text-sm text-slate-500 mt-1">veya tıklayıp seçin</p>
+                </div>
+            </div>
+
+            <!-- Selected Files State -->
+            <div x-show="files.length > 0" class="relative z-20 space-y-2">
+                <template x-for="(file, index) in files" :key="index">
+                    <div class="flex items-center gap-4 text-left bg-slate-900/50 p-2 rounded-lg border border-slate-700/50">
+                        <!-- Preview Thumbnail (Only for single image) -->
+                        <div x-show="files.length === 1 && previewUrl" class="w-12 h-12 rounded bg-slate-800 border border-slate-700 overflow-hidden flex-shrink-0">
+                            <img :src="previewUrl" class="w-full h-full object-cover">
+                        </div>
+                        <!-- Generic Icon -->
+                        <div x-show="files.length > 1 || !previewUrl" class="w-12 h-12 rounded bg-slate-800 border border-slate-700 flex-shrink-0 flex items-center justify-center text-slate-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate" x-text="file.name"></p>
+                            <p class="text-xs text-slate-400 mt-0.5" x-text="formatSize(file.size)"></p>
+                        </div>
+
+                        <button @click.prevent.stop="removeFile(index)" class="p-1.5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </template>
+                
+                <div x-show="multiple && files.length > 0" class="text-xs text-slate-500 pt-2">
+                    Toplam <span x-text="files.length" class="text-emerald-400 font-bold"></span> dosya seçildi.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OR Divider (Only show if no files selected) -->
+    <div x-show="files.length === 0" class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-slate-800"></div>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-slate-900 px-2 text-slate-600 font-medium">veya</span>
+        </div>
+    </div>
+
+    <!-- URL Input (Only show if no files selected and not multiple) -->
+    <div x-show="files.length === 0 && !multiple" class="relative group">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-slate-500 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+            </svg>
+        </div>
+        <input 
+            type="url" 
+            name="url"
+            x-model="url"
+            placeholder="Resim URL'si yapıştır..." 
+            class="block w-full pl-10 pr-3 py-3 bg-slate-800 border border-slate-700 rounded-xl text-sm placeholder-slate-500 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+        >
+    </div>
+
+    <!-- Submit Button -->
+    <div class="mt-6">
+        <button 
+            hx-post="{{ hx_post_url }}" 
+            hx-encoding="multipart/form-data"
+            hx-target="#result-area"
+            hx-indicator="#loading-indicator"
+            :disabled="files.length === 0 && !url"
+            class="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none transition-all transform active:scale-[0.98] flex items-center justify-center gap-2"
+        >
+            <span>{{ button_text|default('Dönüştür') }}</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="htmx-indicator mt-4">
+        <div class="flex items-center justify-center gap-3 text-emerald-400 bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/20">
+            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="font-medium animate-pulse">İşleniyor, lütfen bekleyin...</span>
+        </div>
+    </div>
+</div>

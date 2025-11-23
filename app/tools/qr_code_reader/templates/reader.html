@@ -1,0 +1,61 @@
+{% extends "components/tool_layout.html" %}
+
+{% block tool_content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Input Area -->
+    {% with 
+        hx_post_url='/tools/qr-code-reader/read',
+        input_type='file',
+        accept='image/*',
+        pipeline_file=pipeline_file,
+        button_text='QR Kod Oku'
+    %}
+        {% include "components/tool_input.html" %}
+    {% endwith %}
+
+    <!-- Result Area -->
+    <div id="result-area" class="space-y-6">
+        {% if result %}
+        <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-6 animate-fade-in">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-500 rounded-lg text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4h2v-4zM6 20h2v-4H6v4zM6 10h2V6H6v4zM16 6h2v4h-2V6zM6 14h2v-4H6v4zM10 20h2v-6h-2v6zM10 10h2V4h-2v6zM10 14h2v-2h-2v2zM14 14h2v-2h-2v2zM14 20h2v-2h-2v2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">QR Kod Okundu!</h3>
+                        <p class="text-emerald-400 text-sm">İçerik başarıyla çözüldü</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50 mb-6 relative group">
+                <p class="text-slate-300 font-mono break-all pr-10">{{ result }}</p>
+                <button onclick="navigator.clipboard.writeText('{{ result }}')" 
+                        class="absolute top-2 right-2 p-2 text-slate-500 hover:text-emerald-400 bg-slate-800/50 hover:bg-slate-800 rounded-lg transition-colors"
+                        title="Kopyala">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+            
+            <div class="flex flex-col gap-4">
+                {% if is_url %}
+                <a href="{{ result }}" target="_blank" rel="noopener noreferrer"
+                   class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    Adrese Git
+                </a>
+                {% endif %}
+                
+                <!-- Pipeline Suggestions -->
+                {% if pipeline_id %}
+                <div class="border-t border-slate-700/50 pt-4">
+                    {% include "components/pipeline_suggestions.html" %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

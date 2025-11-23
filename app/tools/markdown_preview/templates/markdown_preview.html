@@ -1,0 +1,71 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="max-w-7xl mx-auto" x-data="{ 
+    content: '# Merhaba Dünya!\n\nBu bir **Markdown** önizleme aracıdır.\n\n- Liste öğesi 1\n- Liste öğesi 2\n\n```python\nprint(\'Hello World\')\n```'
+}">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[600px]">
+        <!-- Editor Column -->
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <label class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Markdown Editör
+                </label>
+                <span class="text-xs text-slate-500 bg-slate-800/50 px-2 py-1 rounded-full border border-slate-700/50">Otomatik yenilenir</span>
+            </div>
+            <div class="flex-1 bg-slate-800/50 rounded-2xl p-1 border border-slate-700/50 shadow-xl flex flex-col">
+                <textarea name="content" 
+                          x-model="content"
+                          hx-post="/tools/markdown-preview/render" 
+                          hx-trigger="keyup delay:500ms, load" 
+                          hx-target="#preview-area"
+                          class="flex-1 w-full bg-slate-900/80 rounded-xl p-6 text-white font-mono text-sm placeholder-slate-500 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none border-0 leading-relaxed"
+                          placeholder="# Markdown metnini buraya yazın..."></textarea>
+            </div>
+        </div>
+
+        <!-- Preview Column -->
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between mb-3 px-1">
+                <label class="text-sm font-medium text-slate-300 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    Önizleme
+                </label>
+                <button @click="navigator.clipboard.writeText(document.getElementById('preview-area').innerHTML)" 
+                        class="text-xs text-slate-400 hover:text-emerald-400 flex items-center gap-1.5 transition-colors bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-700/50 hover:border-emerald-500/30">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    HTML Kopyala
+                </button>
+            </div>
+            <div class="flex-1 bg-slate-800/50 rounded-2xl p-1 border border-slate-700/50 shadow-xl flex flex-col overflow-hidden">
+                <div id="preview-area" class="flex-1 bg-slate-900/50 rounded-xl p-8 overflow-y-auto prose prose-invert max-w-none prose-headings:text-emerald-400 prose-a:text-emerald-400 hover:prose-a:text-emerald-300 prose-pre:bg-slate-950 prose-pre:border prose-pre:border-slate-800">
+                    <!-- Preview content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+        {{ card_comp.render(
+            title="GitHub Uyumlu",
+            description="GitHub Flavored Markdown sözdizimini destekler.",
+            icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>'
+        ) }}
+        
+        {{ card_comp.render(
+            title="Kod Blokları",
+            description="Programlama dilleri için sözdizimi vurgulama desteği.",
+            icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>'
+        ) }}
+        
+        {{ card_comp.render(
+            title="Anlık Dönüşüm",
+            description="Siz yazdıkça önizleme otomatik olarak güncellenir.",
+            icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>'
+        ) }}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{# Button component with primary/secondary styles #}
+{% macro render(text, type='primary', onclick=None, id=None, form_type='button') %}
+{% set base_classes = "px-6 py-3 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2" %}
+{% set primary_classes = "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 focus:ring-indigo-500" %}
+{% set secondary_classes = "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-gray-500" %}
+
+<button 
+    type="{{ form_type }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    class="{{ base_classes }} {% if type == 'primary' %}{{ primary_classes }}{% else %}{{ secondary_classes }}{% endif %}">
+    {{ text }}
+</button>
+{% endmacro %}

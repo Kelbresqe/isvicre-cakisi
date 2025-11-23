@@ -1,0 +1,121 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ 
+    length: 16,
+    useUppercase: true,
+    useLowercase: true,
+    useNumbers: true,
+    useSymbols: true
+}">
+    <!-- Left Column: Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Result Display -->
+        <div class="bg-slate-800/50 rounded-2xl p-1 border border-slate-700/50 shadow-xl">
+            <div class="bg-slate-900/80 rounded-xl p-8 text-center space-y-6">
+                <div id="result-area" class="min-h-[120px] flex items-center justify-center">
+                    <!-- Result will be loaded here -->
+                    <div class="animate-pulse text-slate-500">Şifre oluşturuluyor...</div>
+                </div>
+                
+                <button hx-post="/tools/password-generator/generate" 
+                        hx-target="#result-area" 
+                        hx-indicator="#loading"
+                        hx-trigger="load, click"
+                        class="w-full max-w-sm mx-auto py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-900/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Yeni Şifre Oluştur
+                </button>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="bg-blue-900/20 border border-blue-500/30 rounded-xl p-6">
+            <h3 class="text-blue-400 font-bold mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Güvenlik İpuçları
+            </h3>
+            <ul class="list-disc list-inside text-blue-300/80 space-y-2 text-sm">
+                <li>Şifreleriniz sunucularımızda asla saklanmaz.</li>
+                <li>En az 12 karakter uzunluğunda şifreler kullanmanızı öneririz.</li>
+                <li>Her hesap için farklı bir şifre kullanın.</li>
+            </ul>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-slate-700/50">
+            {{ card_comp.render(
+                title="Kriptografik Güvenlik",
+                description="Python secrets modülü ile güvenli rastgelelik.",
+                icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'
+            ) }}
+            
+            {{ card_comp.render(
+                title="Tam Özelleştirme",
+                description="Uzunluk ve karakter setlerini ayarlayın.",
+                icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>'
+            ) }}
+            
+            {{ card_comp.render(
+                title="Gizlilik Odaklı",
+                description="Oluşturulan şifreler kaydedilmez.",
+                icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>'
+            ) }}
+        </div>
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <form id="generator-form"
+                  hx-post="/tools/password-generator/generate" 
+                  hx-target="#result-area" 
+                  hx-trigger="change"
+                  class="space-y-6">
+                
+                <!-- Length -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">
+                        Şifre Uzunluğu: <span x-text="length" class="text-emerald-400 font-mono"></span>
+                    </label>
+                    <input type="range" name="length" x-model="length" min="4" max="64" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 transition-all">
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 font-medium uppercase tracking-wide">
+                        <span>Kısa (4)</span>
+                        <span>Uzun (64)</span>
+                    </div>
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="space-y-3 bg-slate-900/30 p-4 rounded-xl border border-slate-700/30">
+                    <label class="flex items-center space-x-3 cursor-pointer group">
+                        <input type="checkbox" name="use_uppercase" x-model="useUppercase" value="true" 
+                               class="w-5 h-5 rounded border-slate-600 text-emerald-600 focus:ring-emerald-500 bg-slate-800 transition-colors group-hover:border-emerald-500/50">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Büyük Harfler (A-Z)</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 cursor-pointer group">
+                        <input type="checkbox" name="use_lowercase" x-model="useLowercase" value="true" 
+                               class="w-5 h-5 rounded border-slate-600 text-emerald-600 focus:ring-emerald-500 bg-slate-800 transition-colors group-hover:border-emerald-500/50">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Küçük Harfler (a-z)</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 cursor-pointer group">
+                        <input type="checkbox" name="use_numbers" x-model="useNumbers" value="true" 
+                               class="w-5 h-5 rounded border-slate-600 text-emerald-600 focus:ring-emerald-500 bg-slate-800 transition-colors group-hover:border-emerald-500/50">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Rakamlar (0-9)</span>
+                    </label>
+                    
+                    <label class="flex items-center space-x-3 cursor-pointer group">
+                        <input type="checkbox" name="use_symbols" x-model="useSymbols" value="true" 
+                               class="w-5 h-5 rounded border-slate-600 text-emerald-600 focus:ring-emerald-500 bg-slate-800 transition-colors group-hover:border-emerald-500/50">
+                        <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Semboller (!@#$)</span>
+                    </label>
+                </div>
+            </form>
+        {% endcall %}
+    </div>
+</div>
+{% endblock %}

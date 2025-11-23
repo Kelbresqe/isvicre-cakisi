@@ -1,0 +1,73 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ mode: 'prettify' }">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/json-formatter/format',
+            input_type='text',
+            button_text='Formatla',
+            title='JSON Verisi',
+            title_icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+
+
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-3">İşlem Modu</label>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="prettify" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Güzelleştir (Prettify)</span>
+                            <span class="block text-xs text-slate-500">Okunabilir format</span>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="minify" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Sıkıştır (Minify)</span>
+                            <span class="block text-xs text-slate-500">Tek satır format</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        {% endcall %}
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+    {{ card_comp.render(
+        title="Sözdizimi Kontrolü",
+        description="Otomatik JSON doğrulama ve hata tespiti.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Hızlı Format",
+        description="Anında güzelleştirme ve sıkıştırma.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Kopyalama Kolaylığı",
+        description="Tek tıkla sonucu panoya kopyalayın.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>'
+    ) }}
+</div>
+{% endblock %}

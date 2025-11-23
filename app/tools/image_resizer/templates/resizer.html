@@ -1,0 +1,96 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ 
+    mode: 'scale',
+    scale: 50,
+    width: '',
+    height: ''
+}">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/image-resizer/resize',
+            input_type='file',
+            accept='image/*',
+            multiple=True,
+            pipeline_file=pipeline_file,
+            button_text='Boyutlandır'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+
+
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <div class="space-y-6">
+                <!-- Scale Mode -->
+                <div>
+                    <label class="flex items-center cursor-pointer mb-3 group">
+                        <input type="radio" x-model="mode" value="scale" name="mode" class="mr-3 w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <span class="text-slate-300 group-hover:text-white transition-colors font-medium">Yüzde ile Ölçekle</span>
+                    </label>
+                    <div x-show="mode === 'scale'" x-transition class="ml-7 bg-slate-900/30 p-4 rounded-xl border border-slate-700/30">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-slate-400">Küçültme Oranı</span>
+                            <span class="text-xs font-mono text-emerald-400" x-text="'% ' + scale"></span>
+                        </div>
+                        <input type="range" name="scale_percent" x-model="scale" min="10" max="200" step="5" 
+                               class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 transition-all">
+                    </div>
+                </div>
+
+                <!-- Dimensions Mode -->
+                <div>
+                    <label class="flex items-center cursor-pointer mb-3 group">
+                        <input type="radio" x-model="mode" value="dimensions" name="mode" class="mr-3 w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <span class="text-slate-300 group-hover:text-white transition-colors font-medium">Özel Boyut (px)</span>
+                    </label>
+                    <div x-show="mode === 'dimensions'" x-transition class="ml-7 space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Genişlik</label>
+                            <input type="number" name="target_width" x-model="width" placeholder="Örn: 1920" 
+                                   class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Yükseklik</label>
+                            <input type="number" name="target_height" x-model="height" placeholder="Örn: 1080" 
+                                   class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endcall %}
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+    {{ card_comp.render(
+        title="Oran Koruma",
+        description="Akıllı ölçeklendirme ile görüntü oranları bozulmaz.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Esnek Boyut",
+        description="Yüzde veya piksel bazlı boyutlandırma seçenekleri.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Kalite",
+        description="Yeniden örnekleme ile yüksek kalite korunur.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>'
+    ) }}
+</div>
+{% endblock %}

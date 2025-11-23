@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div x-data="{ 
+    search: '',
+    
+    match(text) {
+        if (!this.search) return true;
+        return text.toLowerCase().includes(this.search.toLowerCase());
+    }
+}" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Hero Section -->
+    <div class="text-center mb-16 animate-fade-in">
+        <h1 class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6 tracking-tight">
+            İsviçre Çakısı
+        </h1>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10">
+            Gündelik dijital işleriniz için hepsi bir arada, güvenli ve hızlı araçlar.
+        </p>
+        
+        <!-- Search Bar -->
+        <div class="relative max-w-2xl mx-auto group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg class="h-6 w-6 text-slate-500 group-focus-within:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <input 
+                type="text" 
+                x-model="search"
+                placeholder="Araç ara... (Örn: Resim, PDF, Dönüştürücü)" 
+                class="block w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-700 rounded-2xl text-lg placeholder-slate-500 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-xl transition-all"
+            >
+            <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                <span class="text-slate-600 text-sm border border-slate-700 rounded px-2 py-0.5">⌘K</span>
+            </div>
+        </div>
+    </div>
+
+{% import "components/tool_card.html" as tool_card %}
+
+    <!-- Categorized Grid -->
+    {% if tools %}
+        {% set grouped_tools = {} %}
+        {% for tool in tools %}
+            {% set category = tool.category.value %}
+            {% if category not in grouped_tools %}
+                {% set _ = grouped_tools.update({category: []}) %}
+            {% endif %}
+            {% set _ = grouped_tools[category].append(tool) %}
+        {% endfor %}
+
+        <div class="space-y-12">
+            {% for category, category_tools in grouped_tools.items() %}
+            <div x-show="search === '' || '{{ category }}'.toLowerCase().includes(search.toLowerCase()) || {{ category_tools|length }} > 0">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-3 pl-1 border-l-4 border-emerald-500">
+                    {{ category }}
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {% for tool in category_tools %}
+                        {{ tool_card.render(tool) }}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-slate-800/50 mb-6">
+                <svg class="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-medium text-white mb-2">Henüz Araç Yok</h3>
+            <p class="text-slate-500">Sisteme kayıtlı herhangi bir araç bulunamadı.</p>
+        </div>
+    {% endif %}
+
+    <!-- No Results State (Alpine) -->
+    <div x-show="search !== '' && document.querySelectorAll('[x-show=\'match\']').length === 0" 
+         class="text-center py-20 hidden" 
+         :class="{'hidden': false, 'block': true}">
+        <p class="text-slate-500 text-lg">
+            "<span x-text="search" class="text-white font-medium"></span>" ile eşleşen araç bulunamadı.
+        </p>
+    </div>
+
+</div>
+
+<!-- Keyboard Shortcut Script -->
+<script>
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            document.querySelector('input[type="text"]').focus();
+        }
+    });
+</script>
+{% endblock %}

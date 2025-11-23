@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% import "components/hero.html" as hero %}
+
+{% block content %}
+<!-- Hero Section -->
+{% block hero %}
+{{ hero.render(
+    title=tool.title,
+    subtitle=tool.description,
+    icon=tool.icon,
+    category=tool.category.value
+) }}
+{% endblock %}
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Flash Messages -->
+    <div id="flash-messages" class="mb-8 empty:hidden"></div>
+
+    <!-- Tool Content -->
+    {% block tool_content %}
+    <!-- Default single column layout -->
+    <div class="max-w-4xl mx-auto">
+        <!-- Tool-specific content goes here -->
+    </div>
+    {% endblock %}
+</div>
+
+<!-- SEO Content Sections (v0.7.0) -->
+{% include "components/tool_content.html" %}
+{% endblock %}

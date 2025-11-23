@@ -1,0 +1,54 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/image-cropper/crop',
+            input_type='file',
+            accept='image/*',
+            pipeline_file=pipeline_file,
+            button_text='Kırp ve İndir'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">Genişlik (px)</label>
+                        <input type="number" name="width" required 
+                               class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">Yükseklik (px)</label>
+                        <input type="number" name="height" required 
+                               class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">X Offset</label>
+                        <input type="number" name="x" value="0" 
+                               class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-500 mb-1">Y Offset</label>
+                        <input type="number" name="y" value="0" 
+                               class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500">Koordinatlar sol üst köşeden başlar.</p>
+            </div>
+        {% endcall %}
+    </div>
+</div>
+{% endblock %}

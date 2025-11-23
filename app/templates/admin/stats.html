@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2">Admin Dashboard</h1>
+                    <p class="text-gray-400">İsviçre Çakısı - Kullanım İstatistikleri</p>
+                </div>
+                <a href="/" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors">
+                    Ana Sayfa
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <!-- Total Calls -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Toplam Çağrı</p>
+                        <p class="text-3xl font-bold">{{ stats.total_calls }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Errors -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Toplam Hata</p>
+                        <p class="text-3xl font-bold">{{ stats.total_errors }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cache Hits -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Cache Hit</p>
+                        <p class="text-3xl font-bold">{{ stats.total_cache_hits }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rate Limits -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Rate Limit</p>
+                        <p class="text-3xl font-bold">{{ stats.total_rate_limits }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Rate -->
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Hata Oranı</p>
+                        <p class="text-3xl font-bold">{{ stats.error_rate }}%</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Tools -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 mb-8">
+            <h2 class="text-2xl font-bold mb-4">En Çok Kullanılan Araçlar</h2>
+            {% if stats.top_tools %}
+            <div class="space-y-3">
+                {% for tool in stats.top_tools %}
+                <div class="flex items-center justify-between bg-white/5 p-4 rounded-lg">
+                    <span class="font-medium">{{ tool.slug }}</span>
+                    <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm">
+                        {{ tool.calls }} çağrı
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-gray-400">Henüz kullanım verisi yok.</p>
+            {% endif %}
+        </div>
+
+        <!-- Detailed Stats Table -->
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <h2 class="text-2xl font-bold mb-4">Araç Bazlı Detaylar</h2>
+            {% if stats.by_tool %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-white/20">
+                            <th class="text-left py-3 px-4 font-semibold">Araç</th>
+                            <th class="text-right py-3 px-4 font-semibold">Çağrı</th>
+                            <th class="text-right py-3 px-4 font-semibold">Başarılı</th>
+                            <th class="text-right py-3 px-4 font-semibold">Hata</th>
+                            <th class="text-right py-3 px-4 font-semibold">Cache Hit</th>
+                            <th class="text-right py-3 px-4 font-semibold">Rate Limit</th>
+                            <th class="text-right py-3 px-4 font-semibold">Ort. Süre (ms)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                        {% for slug, tool_stats in stats.by_tool.items() %}
+                        <tr class="hover:bg-white/5 transition-colors">
+                            <td class="py-3 px-4">{{ slug }}</td>
+                            <td class="py-3 px-4 text-right">{{ tool_stats.calls }}</td>
+                            <td class="py-3 px-4 text-right text-green-400">{{ tool_stats.successes }}</td>
+                            <td class="py-3 px-4 text-right {% if tool_stats.errors > 0 %}text-red-400{% else %}text-gray-500{% endif %}">
+                                {{ tool_stats.errors }}
+                            </td>
+                            <td class="py-3 px-4 text-right text-emerald-400">{{ tool_stats.cache_hits }}</td>
+                            <td class="py-3 px-4 text-right text-orange-400">{{ tool_stats.rate_limits }}</td>
+                            <td class="py-3 px-4 text-right text-purple-400">{{ "%.2f"|format(tool_stats.avg_duration_ms) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-gray-400">Henüz detaylı veri yok.</p>
+            {% endif %}
+        </div>
+
+        <!-- v0.7.0: Analytics Section -->
+        {% if analytics %}
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+                Analytics (v0.7.0)
+            </h2>
+
+            <!-- Analytics Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-gray-400 text-sm">Total Page Views</p>
+                    <p class="text-2xl font-bold text-emerald-400">{{ analytics.total_page_views }}</p>
+                </div>
+                <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-gray-400 text-sm">Total Searches</p>
+                    <p class="text-2xl font-bold text-blue-400">{{ analytics.total_searches }}</p>
+                </div>
+                <div class="bg-white/5 rounded-lg p-4">
+                    <p class="text-gray-400 text-sm">Unique Search Queries</p>
+                    <p class="text-2xl font-bold text-purple-400">{{ analytics.unique_searches }}</p>
+                </div>
+            </div>
+
+            <!-- Top Viewed Tools -->
+            {% if analytics.top_viewed_tools %}
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-3">En Çok Görüntülenen Araçlar</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-white/10">
+                                <th class="text-left py-2 px-4 text-gray-400 font-medium">Tool</th>
+                                <th class="text-right py-2 px-4 text-gray-400 font-medium">Views</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tool in analytics.top_viewed_tools %}
+                            <tr class="border-b border-white/5 hover:bg-white/5">
+                                <td class="py-2 px-4">{{ tool.slug }}</td>
+                                <td class="py-2 px-4 text-right text-emerald-400 font-mono">{{ tool.views }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Top Search Queries -->
+            {% if analytics.top_searches %}
+            <div>
+                <h3 class="text-lg font-semibold mb-3">En Çok Aranan Terimler</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {% for search in analytics.top_searches %}
+                    <div class="bg-white/5 rounded-lg p-3 flex items-center justify-between">
+                        <span class="text-gray-300">"{{ search.query }}"</span>
+                        <span class="text-blue-400 font-mono text-sm">{{ search.count }}x</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- v0.8.0: Flow Analytics Section -->
+        {% if analytics.top_flows %}
+        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+                Flow Insights (v0.8.0)
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Overview -->
+                <div class="bg-white/5 rounded-lg p-6">
+                    <p class="text-gray-400 text-sm mb-2">Toplam Akış (Flow)</p>
+                    <p class="text-3xl font-bold text-purple-400">{{ analytics.total_flows }}</p>
+                    <p class="text-xs text-gray-500 mt-2">Kullanıcıların araçlar arası geçiş sayısı</p>
+                </div>
+
+                <!-- Top Flows Table -->
+                <div class="bg-white/5 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">En Sık Kullanılan Akışlar</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-white/10">
+                                    <th class="text-left py-2 px-4 text-gray-400 font-medium">Kaynak</th>
+                                    <th class="text-center py-2 px-4 text-gray-400 font-medium">→</th>
+                                    <th class="text-left py-2 px-4 text-gray-400 font-medium">Hedef</th>
+                                    <th class="text-right py-2 px-4 text-gray-400 font-medium">Adet</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for flow in analytics.top_flows %}
+                                <tr class="border-b border-white/5 hover:bg-white/5">
+                                    <td class="py-2 px-4 text-purple-300">{{ flow.from }}</td>
+                                    <td class="py-2 px-4 text-center text-gray-600">→</td>
+                                    <td class="py-2 px-4 text-emerald-300">{{ flow.to }}</td>
+                                    <td class="py-2 px-4 text-right font-mono font-bold">{{ flow.count }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

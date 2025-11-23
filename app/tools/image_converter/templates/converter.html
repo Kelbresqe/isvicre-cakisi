@@ -1,0 +1,89 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ 
+    targetFormat: 'jpg',
+    quality: 80,
+    stripExif: true
+}">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/image-converter/convert',
+            input_type='file',
+            accept='image/*',
+            multiple=True,
+            pipeline_file=pipeline_file,
+            button_text='Dönüştür'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+
+
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <!-- Target Format -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-slate-400 mb-3">Hedef Format</label>
+                <div class="grid grid-cols-3 gap-2">
+                    {% for fmt in ['jpg', 'png', 'webp'] %}
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="target_format" value="{{ fmt }}" x-model="targetFormat" class="peer sr-only">
+                        <div class="text-center py-2.5 rounded-xl border border-slate-700 bg-slate-900/50 text-slate-400 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-900/20 transition-all group-hover:bg-slate-800 uppercase text-xs font-bold tracking-wider">
+                            {{ fmt }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div class="mt-2">
+                     <label class="cursor-pointer group">
+                        <input type="radio" name="target_format" value="ico" x-model="targetFormat" class="peer sr-only">
+                        <div class="text-center py-2.5 rounded-xl border border-slate-700 bg-slate-900/50 text-slate-400 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-900/20 transition-all group-hover:bg-slate-800 uppercase text-xs font-bold tracking-wider">
+                            ICO (Favicon)
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Quality Slider -->
+            <div class="mb-6 bg-slate-900/30 rounded-xl p-4 border border-slate-700/30" x-show="['jpg', 'webp'].includes(targetFormat)" x-transition>
+                <div class="flex justify-between mb-3">
+                    <label class="text-sm font-medium text-slate-300">Kalite Seviyesi</label>
+                    <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded" x-text="quality + '%'"></span>
+                </div>
+                <input type="range" name="quality" x-model="quality" min="10" max="100" step="5" 
+                       class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 hover:accent-emerald-400 transition-all">
+                <div class="flex justify-between mt-2 text-[10px] text-slate-500 uppercase font-medium tracking-wide">
+                    <span>Düşük Boyut</span>
+                    <span>Yüksek Kalite</span>
+                </div>
+            </div>
+
+        {% endcall %}
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+    {{ card_comp.render(
+        title="Format Esnekliği",
+        description="JPG, PNG, WebP ve ICO formatları arasında hızlı dönüşüm.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Kalite Kontrolü",
+        description="Özelleştirilebilir sıkıştırma ayarları ile dosya boyutu kontrolü.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>'
+    ) }}
+</div>
+{% endblock %}

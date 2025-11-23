@@ -1,0 +1,103 @@
+{% extends "components/tool_layout.html" %}
+
+{% block tool_content %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Input Area -->
+    {% with 
+        hx_post_url='/tools/image-metadata/inspect',
+        input_type='file',
+        accept='image/*',
+        pipeline_file=pipeline_file,
+        button_text='Metadata İncele'
+    %}
+        {% include "components/tool_input.html" %}
+    {% endwith %}
+
+    <!-- Result Area -->
+    <div id="result-area" class="space-y-6">
+        {% if metadata is defined %}
+            <!-- Basic Info Card -->
+            <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 p-6 animate-fade-in">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Temel Bilgiler
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <div class="text-xs text-slate-500 mb-1">Dosya Adı</div>
+                        <div class="text-slate-300 font-mono text-sm truncate" title="{{ filename }}">{{ filename }}</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <div class="text-xs text-slate-500 mb-1">Boyut</div>
+                        <div class="text-slate-300 font-mono text-sm">{{ basic_info.size }}</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <div class="text-xs text-slate-500 mb-1">Format</div>
+                        <div class="text-slate-300 font-mono text-sm">{{ basic_info.format }}</div>
+                    </div>
+                    <div class="bg-slate-900/50 p-3 rounded-lg">
+                        <div class="text-xs text-slate-500 mb-1">Dosya Boyutu</div>
+                        <div class="text-slate-300 font-mono text-sm">{{ (basic_info.file_size / 1024)|round(1) }} KB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXIF Data -->
+            {% if has_exif %}
+                <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden animate-fade-in">
+                    <div class="p-6 border-b border-slate-700/50 flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            EXIF Verileri
+                        </h3>
+                        
+                        {% if can_clean %}
+                        <form hx-post="/tools/image-metadata/clean" 
+                              hx-target="#result-area" 
+                              hx-indicator="#cleaning-indicator">
+                            <input type="hidden" name="file_path" value="{{ original_path }}">
+                            <button type="submit" 
+                                    class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                Metadata Temizle
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="cleaning-indicator" class="htmx-indicator p-4 bg-slate-900/50 text-center text-slate-400 text-sm">
+                        Temizleniyor...
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-slate-400">
+                            <thead class="bg-slate-900/50 text-xs uppercase text-slate-500">
+                                <tr>
+                                    <th class="px-6 py-3 font-medium">Etiket</th>
+                                    <th class="px-6 py-3 font-medium">Değer</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/50">
+                                {% for item in metadata %}
+                                <tr class="hover:bg-slate-700/20 transition-colors">
+                                    <td class="px-6 py-3 font-medium text-slate-300">{{ item.name }}</td>
+                                    <td class="px-6 py-3 font-mono text-emerald-400/80">{{ item.value }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <div class="bg-slate-800/50 rounded-xl border border-slate-700/50 p-8 text-center animate-fade-in">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-700/50 text-slate-400 mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-white mb-2">EXIF Verisi Bulunamadı</h3>
+                    <p class="text-slate-400 text-sm">Bu resim dosyasında herhangi bir EXIF metadata bilgisi bulunmuyor. Zaten temizlenmiş olabilir.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

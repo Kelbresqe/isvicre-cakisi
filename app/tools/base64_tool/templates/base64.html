@@ -1,0 +1,73 @@
+{% extends "components/tool_layout.html" %}
+{% import "components/tool_settings.html" as settings_comp %}
+{% import "components/card.html" as card_comp %}
+
+{% block tool_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ mode: 'encode' }">
+    <!-- Left Column: Input + Result -->
+    <div class="lg:col-span-2 space-y-8">
+        <!-- Input Area -->
+        {% with 
+            hx_post_url='/tools/base64/convert',
+            input_type='text',
+            button_text='Dönüştür',
+            title='Girdi',
+            title_icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>'
+        %}
+            {% include "components/tool_input.html" %}
+        {% endwith %}
+
+        <!-- Result Area -->
+        <div id="result-area" class="space-y-6"></div>
+
+
+    </div>
+
+    <!-- Right Column: Settings -->
+    <div class="space-y-6">
+        {% call settings_comp.render() %}
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-3">İşlem Modu</label>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="encode" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Encode (Şifrele)</span>
+                            <span class="block text-xs text-slate-500">Metin -> Base64</span>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 bg-slate-900/50 rounded-xl border border-slate-700/50 cursor-pointer hover:bg-slate-900 transition-colors group">
+                        <input type="radio" name="action" value="decode" x-model="mode" class="w-4 h-4 text-emerald-600 bg-slate-800 border-slate-600 focus:ring-emerald-500">
+                        <div class="ml-3">
+                            <span class="block text-sm font-medium text-white group-hover:text-emerald-400 transition-colors">Decode (Çöz)</span>
+                            <span class="block text-xs text-slate-500">Base64 -> Metin</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        {% endcall %}
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-700/50">
+    {{ card_comp.render(
+        title="Çift Yönlü",
+        description="Metinden Base64'e ve Base64'ten metne dönüşüm.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Güvenli Kodlama",
+        description="URL-safe Base64 desteği.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>'
+    ) }}
+    
+    {{ card_comp.render(
+        title="Hızlı İşlem",
+        description="Büyük metin bloklarını bile hızlıca işleyin.",
+        icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>'
+    ) }}
+</div>
+{% endblock %}
