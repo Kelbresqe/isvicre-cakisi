@@ -1,3 +1,4 @@
+import os
 import uuid
 from typing import List
 
@@ -133,12 +134,11 @@ async def merge(
         file_size = output_path.stat().st_size
 
         # v0.8.0: Pipeline production
-        pipeline_id = None
         if tool_info.produces_pipeline_files:
             from app.core.pipeline import create_pipeline_file
 
             try:
-                pipeline_id = create_pipeline_file(
+                create_pipeline_file(
                     source_tool_slug="pdf-merger",
                     input_file_path=str(output_path),
                     mime_type="application/pdf",

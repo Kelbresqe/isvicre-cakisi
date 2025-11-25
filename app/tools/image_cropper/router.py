@@ -107,15 +107,14 @@ async def crop(
         cropped.save(output, format=img.format or "PNG")
 
         # Pipeline production
-        pid = None
         if tool_info.produces_pipeline_files:
             from app.core.pipeline import create_pipeline_file
 
             try:
-                pid = create_pipeline_file(
+                create_pipeline_file(
                     "image-cropper", str(output), f"image/{(img.format or 'png').lower()}", output.name
                 )
-            except:
+            except Exception:
                 pass
 
         log_tool_call("image-cropper", "success", (time.time() - start) * 1000, {})

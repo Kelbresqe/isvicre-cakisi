@@ -153,12 +153,11 @@ async def resize(
         output_path, output_filename, new_size = save_image(img, filename, fmt)
 
         # v0.8.0: Pipeline production
-        pipeline_id = None
         if tool_info.produces_pipeline_files:
             from app.core.pipeline import create_pipeline_file
 
             try:
-                pipeline_id = create_pipeline_file(
+                create_pipeline_file(
                     source_tool_slug="image-resizer",
                     input_file_path=output_path,
                     mime_type=f"image/{fmt.lower()}",

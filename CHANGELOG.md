@@ -1,5 +1,69 @@
 # Changelog
 
+## [1.0.0] - 2025-11-25
+
+### 🚀 Redis Integration - Scalability Release
+
+#### Major Features
+
+- **Redis Backend**: Full Redis integration for distributed deployments
+  - Automatic fallback to in-memory when Redis unavailable
+  - Zero-downtime deployment support
+  - Configurable via environment variables
+- **Redis-Backed Caching**: `app/core/cache.py`
+  - Hybrid cache: Redis primary + in-memory fallback
+  - LRU eviction in memory, TTL-based in Redis
+  - Tool-specific cache isolation
+- **Distributed Rate Limiting**: `app/core/rate_limit.py`
+  - Per-IP request counting across instances
+  - Upload limit tracking with Redis persistence
+  - Seamless in-memory fallback
+- **Redis Health Checks**: `app/core/health.py`
+  - Redis status in `/health` endpoint
+  - Graceful degradation (healthy even if Redis unavailable)
+  - Redis version and connection info
+
+#### Infrastructure
+
+- **Docker Compose Updates**:
+  - Redis 7 Alpine service with health checks
+  - App depends on Redis with graceful startup
+  - Named volume for Redis persistence
+  - Configurable Redis settings via environment
+- **New Module**: `app/core/redis_client.py`
+  - Lazy connection initialization
+  - Auto key prefixing (configurable)
+  - Full operation set: get/set/delete/incr/lpush/hset/hgetall/expire
+  - Connection pooling with hiredis optimization
+
+#### Configuration
+
+New environment variables:
+
+- `REDIS_ENABLED`: Enable/disable Redis (default: true)
+- `REDIS_URL`: Redis connection URL (default: redis://localhost:6379/0)
+- `REDIS_KEY_PREFIX`: Key prefix for namespacing (default: isvicre:)
+- `REDIS_TTL_SECONDS`: Default TTL for cached values (default: 3600)
+
+#### New Dependencies
+
+- `redis>=7.1.0` - Redis client
+- `hiredis>=3.3.0` - High-performance C parser for Redis
+
+#### Testing
+
+- 12 new Redis integration tests
+- Total: 96 passing tests
+- Tests work with or without Redis available
+
+#### Stats
+
+- Version: 0.9.0 → 1.0.0
+- New files: 2 (redis_client.py, test_redis.py)
+- Modified: 6 (cache.py, rate_limit.py, health.py, config.py, docker-compose.yml, pyproject.toml)
+
+---
+
 ## [0.9.0] - 2025-11-25
 
 ### 🚀 Production Ready Infrastructure

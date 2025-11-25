@@ -1,5 +1,4 @@
-import pytest
-from app.core.cache import get_cached_result, set_cached_result, clear_cache
+from app.core.cache import clear_cache, get_cached_result, set_cached_result
 
 
 def test_cache_operations():

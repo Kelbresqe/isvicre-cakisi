@@ -117,13 +117,12 @@ async def split(
             writer.write(f)
 
         # Pipeline
-        pid = None
         if tool_info.produces_pipeline_files:
             from app.core.pipeline import create_pipeline_file
 
             try:
-                pid = create_pipeline_file("pdf-splitter", str(output), "application/pdf", output.name)
-            except:
+                create_pipeline_file("pdf-splitter", str(output), "application/pdf", output.name)
+            except Exception:
                 pass
 
         log_tool_call("pdf-splitter", "success", (time.time() - start) * 1000, {"pages": len(selected)})

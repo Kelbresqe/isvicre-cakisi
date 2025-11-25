@@ -56,13 +56,9 @@ async def process_image(
         if target_format in ("JPEG", "PNG"):
             save_kwargs["optimize"] = True
 
-        output_path, output_filename, new_size = save_image(
-            img, filename, target_format, **save_kwargs
-        )
+        output_path, output_filename, new_size = save_image(img, filename, target_format, **save_kwargs)
 
         return output_path, output_filename, original_size, new_size
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Resim işlenirken hata oluştu: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Resim işlenirken hata oluştu: {str(e)}")

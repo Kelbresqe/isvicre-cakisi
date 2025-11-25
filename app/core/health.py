@@ -69,6 +69,31 @@ def check_memory() -> dict:
         return {"status": "unknown", "error": str(e)}
 
 
+def check_redis() -> dict:
+    """Check Redis connectivity."""
+    if not settings.REDIS_ENABLED:
+        return {"status": "disabled", "message": "Redis devre dışı"}
+
+    try:
+        from app.core.redis_client import get_redis_client, is_redis_available
+
+        if not is_redis_available():
+            return {"status": "unavailable", "message": "Redis bağlantısı kurulamadı"}
+
+        client = get_redis_client()
+        if client:
+            # Test with ping
+            info = client.info("server")
+            return {
+                "status": "ok",
+                "redis_version": info.get("redis_version", "unknown"),
+                "connected_clients": info.get("connected_clients", 0),
+            }
+        return {"status": "unavailable", "message": "Redis client oluşturulamadı"}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 def get_health_status() -> HealthStatus:
     """
     Get comprehensive health status.
@@ -77,16 +102,20 @@ def get_health_status() -> HealthStatus:
     checks = {
         "temp_directory": check_temp_directory(),
         "memory": check_memory(),
+        "redis": check_redis(),
     }
 
     # Determine overall status
-    all_ok = all(c.get("status") == "ok" for c in checks.values())
+    # Redis is optional, so "disabled" or "unavailable" doesn't mean unhealthy
+    critical_checks = ["temp_directory", "memory"]
+    all_critical_ok = all(checks.get(c, {}).get("status") in ["ok", "unknown"] for c in critical_checks)
+    redis_status = checks.get("redis", {}).get("status")
     any_error = any(c.get("status") == "error" for c in checks.values())
 
-    if all_ok:
+    if all_critical_ok and redis_status in ["ok", "disabled"]:
         status = "healthy"
-    elif any_error:
-        status = "unhealthy"
+    elif any_error or redis_status == "error":
+        status = "degraded"
     else:
         status = "degraded"
 
@@ -120,4 +149,12 @@ def is_ready() -> tuple[bool, str]:
     if not tools:
         return False, "Hiçbir araç yüklenmedi"
 
-    return True, f"{len(tools)} araç hazır"
+    # Check Redis if enabled (optional, degraded is ok)
+    redis_check = check_redis()
+    redis_info = ""
+    if redis_check.get("status") == "ok":
+        redis_info = ", Redis bağlı"
+    elif settings.REDIS_ENABLED and redis_check.get("status") != "ok":
+        redis_info = ", Redis bağlantısı yok (in-memory fallback aktif)"
+
+    return True, f"{len(tools)} araç hazır{redis_info}"

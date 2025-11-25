@@ -1,5 +1,5 @@
 """
-Tests for Phase 5 features: Health checks and Prometheus metrics (v0.9.0)
+Tests for Phase 5+ features: Health checks and Prometheus metrics (v1.0.0)
 """
 
 import pytest
@@ -21,7 +21,7 @@ class TestHealthEndpoints:
         response = client.get("/health")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "healthy"
+        assert data["status"] in ["healthy", "degraded"]  # degraded ok if Redis unavailable
         assert "version" in data
         assert "uptime_seconds" in data
         assert "timestamp" in data
@@ -31,7 +31,7 @@ class TestHealthEndpoints:
         """Test that /health includes correct version."""
         response = client.get("/health")
         data = response.json()
-        assert data["version"] == "0.9.0"
+        assert data["version"] == "1.0.0"
 
     def test_health_endpoint_has_environment(self, client):
         """Test that /health includes environment."""

@@ -1,9 +1,29 @@
 # =============================================================================
 # İsviçre Çakısı - Docker Compose Stack
-# Development and Production configurations (v0.9.0)
+# Development and Production configurations (v1.0.0)
 # =============================================================================
 
 services:
+  # ---------------------------------------------------------------------------
+  # Redis - Cache & Session Store
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: isvicre-cakisi-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - isvicre-network
+    restart: unless-stopped
+
   # ---------------------------------------------------------------------------
   # Main Application
   # ---------------------------------------------------------------------------
@@ -21,6 +41,9 @@ services:
       - REDOC_ENABLED=${REDOC_ENABLED:-true}
       - MAX_REQUESTS_PER_MINUTE=${MAX_REQUESTS_PER_MINUTE:-60}
       - MAX_UPLOAD_MB_PER_HOUR=${MAX_UPLOAD_MB_PER_HOUR:-100}
+      # Redis configuration
+      - REDIS_ENABLED=${REDIS_ENABLED:-true}
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       # Mount temp directory for file processing
       - app_temp:/app/temp
@@ -41,6 +64,9 @@ services:
     networks:
       - isvicre-network
     restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
     labels:
       - "prometheus.scrape=true"
       - "prometheus.port=8000"
@@ -109,6 +135,8 @@ volumes:
   prometheus_data:
     driver: local
   grafana_data:
+    driver: local
+  redis_data:
     driver: local
 # -----------------------------------------------------------------------------
 # Usage:

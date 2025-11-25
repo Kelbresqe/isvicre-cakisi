@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse
 from app.core.observability import log_tool_call
 from app.core.rate_limit import rate_limit_dependency
 from app.core.utils import get_tool_templates
-from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
+from app.tools.registry import Category, ToolInfo, ToolRegistry
 
 # 1. Router Tanımlama
 router = APIRouter(

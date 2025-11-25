@@ -1,5 +1,4 @@
 import base64
-import os
 import time
 
 from fastapi import APIRouter, Depends, Form, Request

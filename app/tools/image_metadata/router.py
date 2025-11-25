@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 
@@ -111,7 +112,6 @@ async def inspect_metadata(
 ):
     """Extract and display EXIF metadata"""
     from app.core.observability import log_tool_call
-    import time
 
     start_time = time.time()
 
@@ -154,10 +154,10 @@ async def inspect_metadata(
                     if isinstance(value, bytes):
                         try:
                             value = value.decode("utf-8", errors="ignore")
-                        except:
+                        except Exception:
                             value = str(value)
                     metadata_items.append({"category": "EXIF", "name": tag_name, "value": str(value)[:100]})
-        except Exception as e:
+        except Exception:
             pass  # No EXIF data
 
         # Basic info
@@ -202,8 +202,6 @@ async def clean_metadata(
 ):
     """Remove all EXIF metadata from image"""
     from app.core.observability import log_tool_call
-    import time
-    import uuid
 
     start_time = time.time()
 

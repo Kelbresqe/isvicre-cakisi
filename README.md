@@ -2,17 +2,18 @@
 
 Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasarımcılar ve günlük kullanıcılar için pratik çözümler sunar.
 
-![Version](https://img.shields.io/badge/version-0.9.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.13+-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
-![Tests](https://img.shields.io/badge/tests-69%20passing-success)
+![Tests](https://img.shields.io/badge/tests-96%20passing-success)
 
 ## 🚀 Özellikler
 
 - **Modern Teknoloji Yığını:** Python 3.13+, FastAPI, HTMX, Alpine.js ve Tailwind CSS
 - **Modüler Mimari:** "Registry Pattern" ile kolayca genişletilebilir yapı
 - **Hızlı ve Güvenli:** `uv` paket yöneticisi, rate limiting ve `puremagic` ile dosya güvenliği
-- **Production Ready:** Docker, Prometheus metrics, structured logging (v0.9.0)
+- **Production Ready:** Docker, Prometheus metrics, structured logging
+- **Redis Entegrasyonu:** Dağıtık deployment için Redis desteği, otomatik fallback (v1.0.0)
 - **Kapsamlı Araçlar:** 13 araç tek bir yerde
 
 ## 🛠 Araçlar (Tools)
@@ -54,11 +55,12 @@ app/
 ├── main.py              # FastAPI app entry point
 ├── core/                # Core modules
 │   ├── config.py        # Pydantic Settings
-│   ├── health.py        # Health check endpoints (v0.9.0)
-│   ├── metrics.py       # Prometheus metrics (v0.9.0)
+│   ├── health.py        # Health check endpoints
+│   ├── metrics.py       # Prometheus metrics
 │   ├── observability.py # Structured logging (structlog)
-│   ├── rate_limit.py    # IP-based rate limiting
-│   ├── cache.py         # LRU cache
+│   ├── rate_limit.py    # IP-based rate limiting (Redis-backed)
+│   ├── cache.py         # Hybrid cache (Redis + in-memory)
+│   ├── redis_client.py  # Redis connection manager (v1.0.0)
 │   └── pipeline.py      # Inter-tool file transfer
 ├── tools/               # Tool modules
 │   ├── registry.py      # Tool registry pattern
@@ -94,17 +96,30 @@ make dev
 
 Uygulama `http://localhost:8000` adresinde çalışacaktır.
 
-### Docker ile Çalıştırma (v0.9.0)
+### Docker ile Çalıştırma
 
 ```bash
 # Docker image oluşturun
 make docker
 
-# Container'ları başlatın
+# Container'ları başlatın (Redis dahil)
 make docker-up
 
 # Prometheus monitoring ile (opsiyonel)
 make docker-mon
+```
+
+### Redis Konfigürasyonu (v1.0.0)
+
+Redis opsiyoneldir. Redis olmadan uygulama in-memory fallback kullanır.
+
+```bash
+# Yerel Redis başlatma (opsiyonel)
+docker run -d --name isvicre-redis -p 6379:6379 redis:7-alpine
+
+# Environment variables
+export REDIS_ENABLED=true
+export REDIS_URL=redis://localhost:6379/0
 ```
 
 ## 🧪 Testler
@@ -120,7 +135,7 @@ make test-cov
 make check
 ```
 
-## 📊 Monitoring (v0.9.0)
+## 📊 Monitoring
 
 ### Health Check Endpoints
 
@@ -129,6 +144,20 @@ make check
 | `GET /health`  | Liveness probe - uygulama çalışıyor mu?   |
 | `GET /ready`   | Readiness probe - trafik almaya hazır mı? |
 | `GET /metrics` | Prometheus metrics                        |
+
+### Health Response (v1.0.0)
+
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0",
+  "checks": {
+    "temp_directory": { "status": "ok" },
+    "memory": { "status": "ok" },
+    "redis": { "status": "ok", "redis_version": "7.x.x" }
+  }
+}
+```
 
 ### Prometheus Metrics
 

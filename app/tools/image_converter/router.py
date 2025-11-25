@@ -2,7 +2,6 @@ import os
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
@@ -137,12 +136,11 @@ async def convert(
         savings_percent = (savings / original_size) * 100 if original_size > 0 else 0
 
         # v0.8.0: Pipeline production
-        pipeline_id = None
         if tool_info.produces_pipeline_files:
             from app.core.pipeline import create_pipeline_file
 
             try:
-                pipeline_id = create_pipeline_file(
+                create_pipeline_file(
                     source_tool_slug="image-converter",
                     input_file_path=output_path,
                     mime_type=f"image/{target_format.lower()}",

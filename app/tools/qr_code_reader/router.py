@@ -1,9 +1,10 @@
+import os
 import time
 import uuid
+
 import cv2
 import numpy as np
-
-from fastapi import APIRouter, Depends, Form, Request, UploadFile
+from fastapi import APIRouter, Depends, Request, UploadFile
 from fastapi.responses import HTMLResponse
 
 from app.core.config import settings

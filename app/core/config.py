@@ -28,12 +28,18 @@ class Settings(BaseSettings):
 
     # Application Metadata
     PROJECT_NAME: str = "İsviçre Çakısı"
-    VERSION: str = "0.9.0"
+    VERSION: str = "1.0.0"
     ENV: Environment = Field(default=Environment.DEV, description="Runtime environment")
 
     # Directories
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
     TEMP_DIR: Path = Field(default_factory=lambda: Path(__file__).resolve().parent.parent.parent / "temp")
+
+    # Redis Configuration (v1.0.0)
+    REDIS_URL: str = Field(default="redis://localhost:6380/0", description="Redis connection URL")
+    REDIS_ENABLED: bool = Field(default=True, description="Enable Redis for caching and rate limiting")
+    REDIS_KEY_PREFIX: str = Field(default="isvicre:", description="Redis key prefix for namespacing")
+    REDIS_TTL_SECONDS: int = Field(default=3600, description="Default TTL for Redis keys in seconds")
 
     # Security & Limits
     MAX_IMAGE_SIZE_MB: int = Field(default=10, description="Maximum image upload size in MB")

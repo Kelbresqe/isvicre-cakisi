@@ -3,7 +3,6 @@
 import os
 import tempfile
 import time
-from pathlib import Path
 
 import pytest
 
@@ -99,9 +98,7 @@ def test_cleanup_expired_files(sample_file):
 def test_pipeline_stats(sample_file):
     """Test pipeline statistics"""
     # Create a file
-    pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain"
-    )
+    create_pipeline_file(source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain")
 
     stats = get_pipeline_stats()
 
@@ -137,9 +134,7 @@ def test_pipeline_file_copy_not_move(sample_file):
     """Test that original file is preserved (copy, not move)"""
     original_exists_before = os.path.exists(sample_file)
 
-    pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain"
-    )
+    create_pipeline_file(source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain")
 
     # Original file should still exist
     original_exists_after = os.path.exists(sample_file)
