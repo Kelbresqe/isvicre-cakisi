@@ -11,6 +11,7 @@ class Category(str, Enum):
     DEV = "Geliştirici Araçları"
     GAME = "Oyun & Eğlence"
     SECURITY = "Güvenlik Araçları"
+    DESIGN = "Tasarım Araçları"
     OTHER = "Diğer Araçlar"
 
 

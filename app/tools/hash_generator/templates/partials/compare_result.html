@@ -1,0 +1,27 @@
+<div class="bg-white rounded-xl shadow-lg p-6">
+    {% if match %}
+    <div class="text-center">
+        <div class="text-6xl mb-4">✅</div>
+        <h3 class="text-2xl font-bold text-green-600 mb-2">Eşleşme!</h3>
+        <p class="text-gray-600">İki hash değeri birbirine eşit.</p>
+    </div>
+    {% else %}
+    <div class="text-center">
+        <div class="text-6xl mb-4">❌</div>
+        <h3 class="text-2xl font-bold text-red-600 mb-2">Eşleşmiyor</h3>
+        <p class="text-gray-600">Hash değerleri farklı.</p>
+    </div>
+    
+    <!-- Show diff -->
+    <div class="mt-6 space-y-2">
+        <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500 mb-1">Hash 1:</div>
+            <code class="text-sm font-mono text-gray-700 break-all">{{ hash1 }}</code>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500 mb-1">Hash 2:</div>
+            <code class="text-sm font-mono text-gray-700 break-all">{{ hash2 }}</code>
+        </div>
+    </div>
+    {% endif %}
+</div>

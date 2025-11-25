@@ -1,0 +1,28 @@
+<div class="bg-white rounded-xl shadow-lg p-6 animate-fade-in relative group">
+    <!-- Copy Button -->
+    <button
+        onclick="
+            const text = document.getElementById('generated-text').innerText;
+            navigator.clipboard.writeText(text);
+            this.innerHTML = '✓ Kopyalandı!';
+            setTimeout(() => this.innerHTML = '📋 Kopyala', 1000);
+        "
+        class="absolute top-4 right-4 px-4 py-2 bg-gray-100 hover:bg-indigo-100 text-gray-600 hover:text-indigo-600 rounded-lg transition-colors font-medium text-sm"
+    >
+        📋 Kopyala
+    </button>
+
+    <div id="generated-text" class="prose max-w-none text-gray-700 font-serif leading-relaxed pt-8">
+        {% if type == 'words' %}
+            {{ text_parts|join(' ') }}
+        {% else %}
+            {% for part in text_parts %}
+                {% if html_tags %}
+                    &lt;p&gt;{{ part }}&lt;/p&gt;<br>
+                {% else %}
+                    <p class="mb-4">{{ part }}</p>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

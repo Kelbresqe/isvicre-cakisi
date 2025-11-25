@@ -1,0 +1,54 @@
+<div class="bg-white rounded-xl shadow-lg p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">
+            {% if source == 'file' %}
+            📁 {{ filename }}
+            {% else %}
+            📝 Metin Hash
+            {% endif %}
+        </h3>
+        <span class="text-sm text-gray-500">
+            {{ (input_size / 1024)|round(2) }} KB
+        </span>
+    </div>
+
+    <!-- Hash Results -->
+    <div class="space-y-3">
+        {% for algo, hash_value in hashes.items() %}
+        <div class="group relative p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+                <span class="font-medium text-gray-700">{{ algorithms[algo].name }}</span>
+                <span class="text-xs text-gray-400">{{ algorithms[algo].bits }}-bit</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <code class="flex-1 text-sm font-mono text-indigo-600 break-all select-all">{{ hash_value }}</code>
+                <button
+                    onclick="navigator.clipboard.writeText('{{ hash_value }}'); this.innerHTML = '✓'; setTimeout(() => this.innerHTML = '📋', 1000)"
+                    class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-100 rounded transition-colors"
+                    title="Kopyala"
+                >
+                    📋
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Copy All Button -->
+    {% if hashes|length > 1 %}
+    <div class="mt-4 pt-4 border-t border-gray-200">
+        <button
+            onclick="
+                const text = Object.entries({{ hashes | tojson }}).map(([k,v]) => k.toUpperCase() + ': ' + v).join('\n');
+                navigator.clipboard.writeText(text);
+                this.innerHTML = '✓ Kopyalandı!';
+                setTimeout(() => this.innerHTML = '📋 Tümünü Kopyala', 1000);
+            "
+            class="w-full px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors font-medium"
+        >
+            📋 Tümünü Kopyala
+        </button>
+    </div>
+    {% endif %}
+</div>

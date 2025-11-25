@@ -1,0 +1,188 @@
+{% extends "components/tool_layout.html" %}
+
+{% block tool_content %}
+<div class="space-y-6">
+    <!-- Tabs -->
+    <div x-data="{ activeTab: 'text' }" class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <!-- Tab Headers -->
+        <div class="flex border-b border-gray-200">
+            <button 
+                @click="activeTab = 'text'"
+                :class="activeTab === 'text' ? 'border-indigo-500 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-6 text-center font-medium border-b-2 transition-colors"
+            >
+                📝 Metin Hash
+            </button>
+            <button 
+                @click="activeTab = 'file'"
+                :class="activeTab === 'file' ? 'border-indigo-500 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-6 text-center font-medium border-b-2 transition-colors"
+            >
+                📁 Dosya Hash
+            </button>
+            <button 
+                @click="activeTab = 'compare'"
+                :class="activeTab === 'compare' ? 'border-indigo-500 text-indigo-600 bg-indigo-50' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                class="flex-1 py-4 px-6 text-center font-medium border-b-2 transition-colors"
+            >
+                🔍 Karşılaştır
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Text Hash Tab -->
+            <div x-show="activeTab === 'text'" x-transition>
+                <form hx-post="/tools/hash-generator/text" hx-target="#result-area" hx-swap="innerHTML" class="space-y-4">
+                    <div>
+                        <label for="text" class="block text-sm font-medium text-gray-700 mb-2">
+                            Metin Girin
+                        </label>
+                        <textarea
+                            id="text"
+                            name="text"
+                            rows="4"
+                            placeholder="Hash'lenecek metni buraya yazın..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono"
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label for="algorithm" class="block text-sm font-medium text-gray-700 mb-2">
+                            Algoritma
+                        </label>
+                        <select
+                            id="algorithm"
+                            name="algorithm"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="all">Tüm Algoritmalar</option>
+                            {% for key, algo in algorithms.items() %}
+                            <option value="{{ key }}">{{ algo.name }} ({{ algo.bits }}-bit)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold rounded-lg hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md"
+                    >
+                        🔐 Hash Oluştur
+                    </button>
+                </form>
+            </div>
+
+            <!-- File Hash Tab -->
+            <div x-show="activeTab === 'file'" x-transition>
+                <form hx-post="/tools/hash-generator/file" hx-target="#result-area" hx-swap="innerHTML" hx-encoding="multipart/form-data" class="space-y-4">
+                    <div 
+                        x-data="{ dragging: false, filename: '' }"
+                        @dragover.prevent="dragging = true"
+                        @dragleave.prevent="dragging = false"
+                        @drop.prevent="dragging = false; filename = $event.dataTransfer.files[0]?.name; $refs.fileInput.files = $event.dataTransfer.files"
+                        :class="dragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'"
+                        class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+                    >
+                        <input
+                            type="file"
+                            name="file"
+                            x-ref="fileInput"
+                            @change="filename = $event.target.files[0]?.name"
+                            class="hidden"
+                            id="file-upload"
+                        >
+                        <label for="file-upload" class="cursor-pointer">
+                            <div class="text-4xl mb-4">📂</div>
+                            <p class="text-gray-600" x-show="!filename">
+                                Dosyayı sürükleyin veya <span class="text-indigo-600 font-medium">tıklayarak seçin</span>
+                            </p>
+                            <p class="text-indigo-600 font-medium" x-show="filename" x-text="filename"></p>
+                            <p class="text-sm text-gray-400 mt-2">Maksimum {{ tool.max_upload_mb }} MB</p>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label for="file_algorithm" class="block text-sm font-medium text-gray-700 mb-2">
+                            Algoritma
+                        </label>
+                        <select
+                            id="file_algorithm"
+                            name="algorithm"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <option value="all">Tüm Algoritmalar</option>
+                            {% for key, algo in algorithms.items() %}
+                            <option value="{{ key }}">{{ algo.name }} ({{ algo.bits }}-bit)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-md"
+                    >
+                        📊 Dosya Hash'i Hesapla
+                    </button>
+                </form>
+            </div>
+
+            <!-- Compare Tab -->
+            <div x-show="activeTab === 'compare'" x-transition>
+                <form hx-post="/tools/hash-generator/compare" hx-target="#result-area" hx-swap="innerHTML" class="space-y-4">
+                    <div>
+                        <label for="hash1" class="block text-sm font-medium text-gray-700 mb-2">
+                            İlk Hash
+                        </label>
+                        <input
+                            type="text"
+                            id="hash1"
+                            name="hash1"
+                            placeholder="Birinci hash değerini yapıştırın..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="hash2" class="block text-sm font-medium text-gray-700 mb-2">
+                            İkinci Hash
+                        </label>
+                        <input
+                            type="text"
+                            id="hash2"
+                            name="hash2"
+                            placeholder="İkinci hash değerini yapıştırın..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-sm"
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-bold rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all shadow-md"
+                    >
+                        🔍 Karşılaştır
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Area -->
+    <div id="result-area">
+        <!-- Results will be loaded here via HTMX -->
+    </div>
+
+    <!-- Algorithm Info -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">📖 Algoritma Bilgileri</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for key, algo in algorithms.items() %}
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <div class="font-semibold text-gray-800">{{ algo.name }}</div>
+                <div class="text-sm text-indigo-600 mb-1">{{ algo.bits }}-bit</div>
+                <div class="text-sm text-gray-500">{{ algo.description }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

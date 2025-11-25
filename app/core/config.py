@@ -44,6 +44,7 @@ class Settings(BaseSettings):
     # Security & Limits
     MAX_IMAGE_SIZE_MB: int = Field(default=10, description="Maximum image upload size in MB")
     MAX_PDF_SIZE_MB: int = Field(default=25, description="Maximum PDF upload size in MB")
+    MAX_UPLOAD_SIZE_MB: int = Field(default=50, description="Default maximum upload size in MB for general files")
     MAX_TEXT_INPUT_MB: int = Field(default=1, description="Maximum text input size in MB for dev tools")
 
     # Rate Limiting (Phase 5)

@@ -14,7 +14,7 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 - **Hızlı ve Güvenli:** `uv` paket yöneticisi, rate limiting ve `puremagic` ile dosya güvenliği
 - **Production Ready:** Docker, Prometheus metrics, structured logging
 - **Redis Entegrasyonu:** Dağıtık deployment için Redis desteği, otomatik fallback (v1.0.0)
-- **Kapsamlı Araçlar:** 13 araç tek bir yerde
+- **Kapsamlı Araçlar:** 18 araç tek bir yerde
 
 ## 🛠 Araçlar (Tools)
 
@@ -31,7 +31,7 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 | **QR Kod Oluşturucu**    | Özelleştirilebilir QR kodlar                     |
 | **QR Kod Okuyucu**       | Resimden QR kod içeriğini okuma                  |
 
-### Geliştirici Araçları (4)
+### Geliştirici Araçları (5)
 
 | Araç                   | Açıklama                         |
 | ---------------------- | -------------------------------- |
@@ -39,12 +39,27 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 | **Base64 Dönüştürücü** | Metin/dosya Base64 encode/decode |
 | **URL Kodlayıcı**      | URL encoding/decoding            |
 | **Markdown Önizleme**  | Canlı Markdown editörü           |
+| **Taban Dönüştürücü**  | Binary, Octal, Decimal, Hex      |
 
-### Güvenlik Araçları (1)
+### Güvenlik Araçları (2)
 
 | Araç                 | Açıklama                |
 | -------------------- | ----------------------- |
 | **Şifre Oluşturucu** | Güçlü rastgele şifreler |
+| **Hash Üretici**     | MD5, SHA-256, File Hash |
+
+### Tasarım Araçları (2)
+
+| Araç                 | Açıklama                         |
+| -------------------- | -------------------------------- |
+| **Renk Seçici**      | HEX, RGB, HSL, CMYK, Paletler    |
+| **Lorem Ipsum**      | Rastgele metin üretici           |
+
+### Oyun & Eğlence (1)
+
+| Araç                 | Açıklama                         |
+| -------------------- | -------------------------------- |
+| **Zar Atma**         | D4-D100, Özel notasyon (2d6+3)   |
 
 ## 🏗 Mimari
 

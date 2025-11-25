@@ -1,0 +1,74 @@
+{% extends "components/tool_layout.html" %}
+
+{% block tool_content %}
+<div class="space-y-8" x-data="{ 
+    color: '#6366f1',
+    updateColor(newColor) {
+        this.color = newColor;
+        $refs.colorInput.value = newColor;
+        htmx.trigger($refs.form, 'submit');
+    }
+}">
+    <!-- Input Area -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <form 
+            x-ref="form"
+            hx-post="/tools/color-picker/convert" 
+            hx-target="#result-area" 
+            hx-swap="innerHTML"
+            hx-trigger="submit, change delay:200ms from:#color-picker"
+            class="space-y-6"
+        >
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <!-- Color Picker Visual -->
+                <div class="relative group">
+                    <input 
+                        type="color" 
+                        id="color-picker"
+                        name="color"
+                        x-model="color"
+                        class="w-32 h-32 rounded-full cursor-pointer border-4 border-white shadow-lg overflow-hidden p-0"
+                        style="appearance: none; -webkit-appearance: none;"
+                    >
+                    <div class="absolute inset-0 rounded-full ring-1 ring-black/10 pointer-events-none"></div>
+                </div>
+
+                <!-- Text Input -->
+                <div class="flex-1 w-full">
+                    <label for="color-text" class="block text-sm font-medium text-gray-700 mb-2">
+                        Renk Kodu (HEX veya RGB)
+                    </label>
+                    <div class="flex gap-2">
+                        <input
+                            type="text"
+                            id="color-text"
+                            x-ref="colorInput"
+                            x-model="color"
+                            placeholder="#6366f1"
+                            class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-lg uppercase"
+                        >
+                        <button
+                            type="submit"
+                            class="px-6 py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
+                        >
+                            Dönüştür
+                        </button>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Örnekler: <span class="font-mono text-indigo-600">#FF5733</span>, <span class="font-mono text-indigo-600">rgb(255, 87, 51)</span>
+                    </p>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Result Area -->
+    <div id="result-area">
+        <!-- Initial State (Empty or Default) -->
+        <div class="text-center text-gray-500 py-12">
+            <div class="text-6xl mb-4">🎨</div>
+            <p class="text-lg">Bir renk seçin veya kodunu girin.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

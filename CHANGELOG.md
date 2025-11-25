@@ -1,5 +1,41 @@
 # Changelog
 
+## [1.1.0] - 2025-11-25
+
+### 🎨 Phase 7A - New Tools & Design
+
+#### New Tools
+
+- **Dice Roller** (`app/tools/dice_roller`):
+  - Advanced dice rolling with D4-D100 support
+  - Custom notation parser (e.g., "2d6+3", "4d6kh3")
+  - Advantage/Disadvantage mechanics
+  - Roll history and animated results
+- **Hash Generator** (`app/tools/hash_generator`):
+  - Text and file hashing support
+  - Algorithms: MD5, SHA-1, SHA-256, SHA-512, BLAKE2b
+  - Hash comparison tool
+  - File integrity verification
+- **Color Picker** (`app/tools/color_picker`):
+  - Advanced color conversion (HEX, RGB, HSL, CMYK)
+  - Visual color picker and palette generation
+  - Complementary, Analogous, Monochromatic schemes
+  - Contrast checking
+- **Lorem Ipsum Generator** (`app/tools/lorem_ipsum`):
+  - Paragraph, sentence, and word generation
+  - HTML tag support (<p>)
+  - "Start with Lorem ipsum" option
+- **Base Converter** (`app/tools/base_converter`):
+  - Number base conversion (Binary, Octal, Decimal, Hex)
+  - Real-time conversion to all bases
+  - Large number support
+
+#### Improvements
+
+- **Core**: Added `MAX_UPLOAD_SIZE_MB` to settings for general file uploads
+- **Templates**: Added `tojson` filter for better JS integration
+- **Registry**: Added `DESIGN` category for design-related tools
+
 ## [1.0.0] - 2025-11-25
 
 ### 🚀 Redis Integration - Scalability Release

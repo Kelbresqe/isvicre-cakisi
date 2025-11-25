@@ -1,3 +1,4 @@
+import json
 import os
 import random
 
@@ -38,4 +39,8 @@ def get_tool_templates(tool_file_path: str) -> Jinja2Templates:
     )
     # Add settings to Jinja2 globals for SEO (v0.7.0)
     templates.env.globals["settings"] = settings
+    
+    # Add custom filters
+    templates.env.filters["tojson"] = json.dumps
+    
     return templates
