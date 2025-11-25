@@ -1,15 +1,16 @@
 import os
+import time
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from PIL import Image
 
 from app.core.config import settings
 from app.core.image_utils import save_image
+from app.core.observability import log_tool_call, record_page_view
 from app.core.rate_limit import rate_limit_dependency
 from app.core.upload import validate_and_load_image
-from app.core.utils import get_random_tech_trivia
+from app.core.utils import get_random_tech_trivia, get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 # 1. Router Tanımlama
@@ -20,13 +21,7 @@ router = APIRouter(
 )
 
 # 2. Şablon Ayarları
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[
-        os.path.join(TOOL_DIR, "templates"),
-        os.path.join(settings.BASE_DIR, "app", "templates"),
-    ]
-)
+templates = get_tool_templates(__file__)
 
 # 3. Aracı Kaydetme (Registry)
 tool_info = ToolInfo(
@@ -96,8 +91,6 @@ ToolRegistry.register(tool_info, router)
 @router.get("/", response_class=HTMLResponse)
 async def page(request: Request):
     # v0.7.0: Analytics tracking
-    from app.core.observability import record_page_view
-
     record_page_view("image-resizer", request.headers.get("user-agent"), request.headers.get("referer"))
 
     return templates.TemplateResponse(request=request, name="resizer.html", context={"tool": tool_info})
@@ -112,10 +105,6 @@ async def resize(
     height: str | None = Form(None),
     scale: str | None = Form(None),
 ):
-    import time
-
-    from app.core.observability import log_tool_call
-
     start_time = time.time()
     try:
         # 1. Yükle (Common Pipeline)
@@ -189,53 +178,24 @@ async def resize(
                 size /= 1024
             return f"{size:.2f} GB"
 
-        return f"""
-        <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-6 animate-fade-in">
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-emerald-500 rounded-lg text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">İşlem Başarılı!</h3>
-                        <p class="text-emerald-400 text-sm">{filename}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-slate-900/50 p-3 rounded-lg">
-                    <div class="text-xs text-slate-500 mb-1">Orijinal Boyut</div>
-                    <div class="text-slate-300 font-mono">{orig_w}x{orig_h} px</div>
-                    <div class="text-slate-500 text-xs mt-1">{fmt_size(original_size)}</div>
-                </div>
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-emerald-500/30">
-                    <div class="text-xs text-emerald-500 mb-1">Yeni Boyut</div>
-                    <div class="text-white font-mono">{new_w}x{new_h} px</div>
-                    <div class="text-emerald-500/70 text-xs mt-1">{fmt_size(new_size)}</div>
-                </div>
-            </div>
-            
-            <div class="flex flex-col gap-4">
-                <div class="flex items-center justify-end">
-                    <a href="/tools/image-resizer/download/{os.path.basename(output_path)}" 
-                       hx-boost="false"
-                       class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        İndir
-                    </a>
-                </div>
-                
-                <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 flex gap-2 items-start">
-                    <span class="text-lg">💡</span>
-                    <div>
-                        <span class="font-bold text-slate-300">Biliyor muydun?</span>
-                        <p>{trivia}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """
+        duration = (time.time() - start_time) * 1000
+        log_tool_call("image-resizer", "success", duration, {"orig": f"{orig_w}x{orig_h}", "new": f"{new_w}x{new_h}"})
+
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/success.html",
+            context={
+                "filename": filename,
+                "orig_width": orig_w,
+                "orig_height": orig_h,
+                "new_width": new_w,
+                "new_height": new_h,
+                "original_size_fmt": fmt_size(original_size),
+                "new_size_fmt": fmt_size(new_size),
+                "output_filename": output_filename,
+                "trivia": trivia,
+            },
+        )
     except Exception as e:
         duration = (time.time() - start_time) * 1000
         log_tool_call("image-resizer", "error", duration, {"error": str(e)})
@@ -243,26 +203,16 @@ async def resize(
         error_msg = str(e.detail) if hasattr(e, "detail") else str(e)
         status_code = e.status_code if hasattr(e, "status_code") else 400
 
-        return HTMLResponse(
-            content=f"""
-        <div class="bg-red-500/10 border border-red-500/50 rounded-xl p-4 animate-fade-in flex items-start gap-3">
-            <div class="p-2 bg-red-500/20 rounded-lg text-red-500 shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-            </div>
-            <div>
-                <h3 class="text-lg font-bold text-white mb-1">Hata Oluştu</h3>
-                <p class="text-red-200 text-sm">{error_msg}</p>
-            </div>
-        </div>
-        """,
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/error.html",
+            context={"error_msg": error_msg},
             status_code=status_code,
         )
 
 
 @router.get("/download/{filename}")
 async def download(filename: str, background_tasks: BackgroundTasks):
-    from app.core.config import settings
-
     file_path = settings.TEMP_DIR / filename
 
     if not file_path.exists():

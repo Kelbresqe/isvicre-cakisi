@@ -37,8 +37,13 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from app.tools.registry import ToolRegistry, ToolInfo, Category
 from app.core.utils import get_tool_templates
+from app.core.rate_limit import rate_limit_dependency
 
-router = APIRouter(prefix="/tools/text-counter")
+router = APIRouter(
+    prefix="/tools/text-counter",
+    tags=["Text Counter"],
+    dependencies=[Depends(rate_limit_dependency)]  # Rate limiting eklemeyi unutmayın
+)
 templates = get_tool_templates(__file__)
 
 # Aracı Kaydet
@@ -48,24 +53,30 @@ tool_info = ToolInfo(
     category=Category.OTHER,
     icon="<svg>...</svg>",
     description="Metin içindeki kelime ve karakterleri sayar.",
+    short_description="Kelime ve karakter sayma aracı",
+    seo_title="Ücretsiz Online Kelime Sayacı | İsviçre Çakısı",
+    seo_description="Metinlerinizdeki kelime ve karakter sayısını anında öğrenin.",
     # ... diğer SEO ve detay alanları
 )
 ToolRegistry.register(tool_info, router)
 
 @router.get("/", response_class=HTMLResponse)
 async def page(request: Request):
+    # templates zaten settings global'ını içerir (get_tool_templates sayesinde)
     return templates.TemplateResponse(request=request, name="index.html", context={"tool": tool_info})
 ```
 
 ### 3. Şablonlar (`templates/`)
 
-`app/tools/text_counter/templates/index.html` dosyasını oluşturun. `base.html`'den türetmeyi unutmayın.
+`app/tools/text_counter/templates/index.html` dosyasını oluşturun. `tool_layout.html`'den türetmeyi unutmayın.
 
 ```html
-{% extends "layout.html" %} {% block content %}
+{% extends "components/tool_layout.html" %} {% block tool_content %}
 <!-- Araç arayüzü -->
 {% endblock %}
 ```
+
+> **Not:** `get_tool_templates(__file__)` fonksiyonu otomatik olarak `settings` objesini Jinja2 globals'a ekler. Bu sayede template'lerde `{{ settings.VERSION }}` gibi ifadeler kullanabilirsiniz.
 
 ### 4. Test Edin
 
@@ -85,5 +96,38 @@ Uygulamayı başlatın. `main.py` içindeki auto-discovery mekanizması yeni ara
 Değişikliklerinizi göndermeden önce testleri çalıştırın:
 
 ```bash
+# Makefile ile (önerilen)
+make test
+
+# veya doğrudan
 uv run pytest
 ```
+
+## 🐳 Docker ile Geliştirme (v0.9.0)
+
+Projeyi Docker ile çalıştırmak için:
+
+```bash
+# Docker image oluştur
+make docker
+
+# Container'ları başlat
+make docker-up
+
+# Logları izle
+make docker-logs
+
+# Prometheus + Grafana monitoring ile
+make docker-mon
+```
+
+## ✅ Pull Request Kontrol Listesi
+
+PR göndermeden önce:
+
+1. [ ] `make check` komutunu çalıştırıp tüm kontrollerin geçtiğinden emin olun
+2. [ ] Yeni araç eklediyseniz `registry.py`'ye kaydettiğinizden emin olun
+3. [ ] Rate limiting dependency'si eklendiğinden emin olun
+4. [ ] Testler yazıldı ve geçiyor (`make test`)
+5. [ ] UI metinleri Türkçe
+6. [ ] `CHANGELOG.md` güncellendi

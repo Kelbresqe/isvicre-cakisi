@@ -1,0 +1,59 @@
+# =============================================================================
+# Prometheus Configuration for İsviçre Çakısı
+# v0.9.0
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+# rule_files:
+#   - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # İsviçre Çakısı Application
+  - job_name: 'isvicre-cakisi'
+    static_configs:
+      - targets: ['app:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+# =============================================================================
+# Useful PromQL Queries:
+# =============================================================================
+# 
+# Request rate per minute:
+#   rate(isvicre_cakisi_requests_total[1m]) * 60
+#
+# Average request latency:
+#   histogram_quantile(0.95, rate(isvicre_cakisi_request_latency_seconds_bucket[5m]))
+#
+# Tool usage rate:
+#   rate(isvicre_cakisi_tool_calls_total[1m]) * 60
+#
+# Error rate:
+#   sum(rate(isvicre_cakisi_tool_calls_total{status="error"}[5m])) / 
+#   sum(rate(isvicre_cakisi_tool_calls_total[5m])) * 100
+#
+# Cache hit ratio:
+#   sum(rate(isvicre_cakisi_cache_hits_total[5m])) / 
+#   (sum(rate(isvicre_cakisi_cache_hits_total[5m])) + sum(rate(isvicre_cakisi_cache_misses_total[5m]))) * 100
+#
+# Rate limit events:
+#   sum(increase(isvicre_cakisi_rate_limit_hits_total[1h]))
+# =============================================================================

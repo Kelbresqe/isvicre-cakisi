@@ -3,14 +3,16 @@ import os
 import pkgutil
 import shutil
 from contextlib import asynccontextmanager
+from dataclasses import asdict
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 import app.tools as tools_pkg
 from app.core.config import settings
+from app.core.health import get_health_status, is_ready
 from app.tools.registry import Category, ToolRegistry
 
 
@@ -79,6 +81,37 @@ for router in ToolRegistry.get_routers():
     app.include_router(router)
 
 
+# --- HEALTH CHECK ENDPOINTS (v0.9.0) ---
+@app.get("/health", response_class=JSONResponse, tags=["Health"])
+async def health_check():
+    """
+    Liveness probe endpoint.
+    Returns comprehensive health status including all system checks.
+    Used by container orchestration (Kubernetes, Docker) for liveness probes.
+    """
+    health = get_health_status()
+    status_code = 200 if health.status == "healthy" else 503
+    return JSONResponse(content=asdict(health), status_code=status_code)
+
+
+@app.get("/ready", response_class=JSONResponse, tags=["Health"])
+async def readiness_check():
+    """
+    Readiness probe endpoint.
+    Returns whether the application is ready to serve traffic.
+    Used by load balancers and container orchestration for traffic routing.
+    """
+    ready, reason = is_ready()
+    status_code = 200 if ready else 503
+    return JSONResponse(
+        content={"ready": ready, "reason": reason, "version": settings.VERSION},
+        status_code=status_code,
+    )
+
+
+# ------------------------------------------
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Dashboard showing all registered tools."""
@@ -145,3 +178,14 @@ async def sitemap(request: Request):
     xml_content += "\n</urlset>"
 
     return Response(content=xml_content, media_type="application/xml")
+
+
+@app.get("/metrics", response_class=Response, tags=["Monitoring"])
+async def prometheus_metrics():
+    """
+    Prometheus metrics endpoint (v0.9.0).
+    Exposes application metrics for Prometheus scraping.
+    """
+    from app.core.metrics import get_metrics, get_metrics_content_type
+
+    return Response(content=get_metrics(), media_type=get_metrics_content_type())

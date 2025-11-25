@@ -1,24 +1,20 @@
 """PDF Splitter tool"""
 
-import os
-import re
 import time
 import uuid
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from pypdf import PdfReader, PdfWriter
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
+from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 router = APIRouter(prefix="/tools/pdf-splitter", tags=["PDF Splitter"], dependencies=[Depends(rate_limit_dependency)])
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[os.path.join(TOOL_DIR, "templates"), os.path.join(settings.BASE_DIR, "app", "templates")]
-)
+
+templates = get_tool_templates(__file__)
 
 tool_info = ToolInfo(
     slug="pdf-splitter",
@@ -27,6 +23,7 @@ tool_info = ToolInfo(
     icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>',
     image_url="/static/images/pdf_splitter.png",
     description="PDF dosyalarından istediğiniz sayfaları seçerek yeni PDF oluşturun.",
+    short_description="PDF'den sayfa ayırma ve çıkarma aracı",
     seo_title="Ücretsiz PDF Ayırıcı - Sayfa Seçerek PDF Oluştur | İsviçre Çakısı",
     seo_description="PDF dosyalarınızdan istediğiniz sayfaları seçin, yeni PDF oluşturun. Sayfa aralıkları ile çalışır.",
     keywords="pdf ayırıcı, pdf splitter, pdf sayfa seçici",

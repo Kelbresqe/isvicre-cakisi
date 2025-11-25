@@ -5,7 +5,7 @@ def test_qr_code_page(client: TestClient):
     response = client.get("/tools/qr-code/")
     assert response.status_code == 200
     assert "QR Kod Oluşturucu" in response.text
-    assert "İçerik (URL, Metin vb.)" in response.text
+    assert "Metin veya URL" in response.text
 
 
 def test_qr_code_generation(client: TestClient):

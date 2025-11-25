@@ -28,7 +28,7 @@ class Settings(BaseSettings):
 
     # Application Metadata
     PROJECT_NAME: str = "İsviçre Çakısı"
-    VERSION: str = "0.5.0"
+    VERSION: str = "0.9.0"
     ENV: Environment = Field(default=Environment.DEV, description="Runtime environment")
 
     # Directories

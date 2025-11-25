@@ -1,22 +1,67 @@
 """
 Observability module for tool usage logging and statistics.
 Provides centralized logging and metrics collection.
+
+v0.9.0: Migrated to structlog for structured async-aware logging.
 """
 
-import json
-import logging
 import time
 from collections import defaultdict
 from contextlib import contextmanager
-from datetime import datetime
 from typing import Any, Dict
 
-# Configure JSON logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
-logger = logging.getLogger("isvicre-cakisi")
+import structlog
+
+from app.core.config import settings
+
+# --- structlog Configuration (v0.9.0) ---
+
+
+def configure_logging() -> None:
+    """
+    Configure structlog for production-ready structured logging.
+    JSON format in production, pretty console in development.
+    """
+    shared_processors = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.UnicodeDecoder(),
+    ]
+
+    if settings.is_prod:
+        # Production: JSON logging for log aggregators (ELK, Loki, etc.)
+        structlog.configure(
+            processors=shared_processors
+            + [
+                structlog.processors.format_exc_info,
+                structlog.processors.JSONRenderer(),
+            ],
+            wrapper_class=structlog.make_filtering_bound_logger(20),  # INFO level
+            context_class=dict,
+            logger_factory=structlog.PrintLoggerFactory(),
+            cache_logger_on_first_use=True,
+        )
+    else:
+        # Development: Pretty console output with colors
+        structlog.configure(
+            processors=shared_processors
+            + [
+                structlog.dev.ConsoleRenderer(colors=True),
+            ],
+            wrapper_class=structlog.make_filtering_bound_logger(10),  # DEBUG level
+            context_class=dict,
+            logger_factory=structlog.PrintLoggerFactory(),
+            cache_logger_on_first_use=True,
+        )
+
+
+# Initialize structlog on module import
+configure_logging()
+
+# Get our logger
+logger = structlog.get_logger("isvicre-cakisi")
 
 # In-memory statistics for admin dashboard (Phase 6)
 _stats = {
@@ -45,7 +90,7 @@ def log_tool_call(
     meta: Dict[str, Any] | None = None,
 ) -> None:
     """
-    Log a tool call in JSON format.
+    Log a tool call with structured logging.
 
     Args:
         tool_slug: Identifier of the tool (e.g., "image-converter")
@@ -53,15 +98,6 @@ def log_tool_call(
         duration_ms: Duration in milliseconds
         meta: Optional metadata like action, size, error message
     """
-    log_data = {
-        "tool": tool_slug,
-        "status": status,
-        "duration_ms": duration_ms,
-    }
-
-    if meta:
-        log_data.update(meta)
-
     # Update in-memory stats
     _stats["tool_calls"][tool_slug] += 1
     _stats["total_duration_ms"][tool_slug] += duration_ms
@@ -69,42 +105,42 @@ def log_tool_call(
     if meta and meta.get("cached"):
         _stats["cache_hits"][tool_slug] += 1
 
+    log_data = {
+        "tool": tool_slug,
+        "duration_ms": round(duration_ms, 2),
+        **(meta or {}),
+    }
+
     if status == "success":
         _stats["successes"][tool_slug] += 1
-        logger.info(f"Tool Call: {json.dumps(log_data)}")
+        logger.info("tool_call", status="success", **log_data)
     else:
         _stats["errors"][tool_slug] += 1
-        _stats["last_error"][tool_slug] = log_data
-        logger.error(f"Tool Error: {json.dumps(log_data)}")
+        _stats["last_error"][tool_slug] = {"tool": tool_slug, "status": status, **log_data}
+        logger.error("tool_call", status="error", **log_data)
 
 
 def log_security_event(event_type: str, detail: Dict[str, Any] | None = None) -> None:
     """
-    Log security-related events.
+    Log security-related events with structured logging.
 
     Args:
         event_type: Type of security event (e.g., "invalid_file", "rate_limit")
         detail: Additional details about the event
     """
-    log_data = {
-        "event_type": event_type,
-        "timestamp": datetime.now().isoformat(),
-    }
+    log_data = detail.copy() if detail else {}
 
-    if detail:
-        log_data.update(detail)
-        # Track rate limits per tool if tool info is available
-        if event_type == "rate_limit_exceeded" and "path" in detail:
-            # Try to extract tool slug from path
-            path = detail["path"]
-            if "/tools/" in path:
-                try:
-                    tool_slug = path.split("/tools/")[1].split("/")[0]
-                    _stats["rate_limit_events"][tool_slug] += 1
-                except IndexError:
-                    pass
+    # Track rate limits per tool if tool info is available
+    if event_type == "rate_limit_exceeded" and detail and "path" in detail:
+        path = detail["path"]
+        if "/tools/" in path:
+            try:
+                tool_slug = path.split("/tools/")[1].split("/")[0]
+                _stats["rate_limit_events"][tool_slug] += 1
+            except IndexError:
+                pass
 
-    logger.warning(f"Security Event: {json.dumps(log_data)}")
+    logger.warning("security_event", event_type=event_type, **log_data)
 
 
 @contextmanager
@@ -205,7 +241,7 @@ def record_page_view(tool_slug: str, user_agent: str | None = None, referer: str
         referer: Optional referer URL
     """
     _analytics["page_views"][tool_slug] += 1
-    logger.debug(f"Page view recorded: {tool_slug}")
+    logger.debug("page_view", tool=tool_slug, user_agent=user_agent, referer=referer)
 
 
 def record_search_query(query: str) -> None:
@@ -217,7 +253,7 @@ def record_search_query(query: str) -> None:
     """
     if len(query.strip()) >= 2:
         _analytics["search_queries"].append(query.strip())
-        logger.debug(f"Search query recorded: {query}")
+        logger.debug("search_query", query=query.strip())
 
 
 def get_analytics_stats() -> Dict[str, Any]:

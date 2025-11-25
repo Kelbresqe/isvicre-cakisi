@@ -60,7 +60,7 @@ The project follows a strict **Registry Pattern**. We do not build a spaghetti m
 
 ### C. Security First
 
-- **File Uploads:** NEVER trust file extensions. Always verify "Magic Bytes" (using `python-magic`) before processing.
+- **File Uploads:** NEVER trust file extensions. Always verify "Magic Bytes" (using `puremagic`) before processing.
 - **Cleanup:** Tools processing files must clean up temporary files (`/tmp`) immediately after response.
 - **Input Validation:** Use Pydantic models for all API inputs.
 
@@ -70,19 +70,31 @@ The project follows a strict **Registry Pattern**. We do not build a spaghetti m
 - Wrap tool logic in `try/except` blocks.
 - Return HTML error fragments (red alert boxes) via HTMX, not JSON 500 errors.
 
+### E. Logging & Observability (v0.9.0)
+
+- Use `structlog` for all logging (not standard logging module).
+- Log format: `logger.info("event_name", key=value, ...)` - NOT f-strings.
+- Security events: Use `log_security_event()` from observability.
+- Tool calls: Use `track_tool_call()` context manager for automatic metrics.
+
 ## 5. DEVELOPMENT WORKFLOW (AUTO-PILOT)
 
 - **File Creation:** You have full permission to create/edit/delete files within the project root.
 - **Testing:** After creating a tool, verify it by conceptually tracing the HTMX request flow.
-- **Roadmap:**
-  - Phase 1: Core Architecture & Image Tools (Current).
-  - Phase 2: Office/PDF Tools.
-  - Phase 3: Developer Tools.
-  - Phase 4: Gamer/RPG Tools.
+- **Docker:** Use `make docker-up` for containerized development.
+- **Current Status:**
+  - ✅ Phase 1: Core Architecture & Image Tools (Completed)
+  - ✅ Phase 2: Office/PDF Tools (Completed)
+  - ✅ Phase 3: Developer Tools (Completed)
+  - ✅ Phase 4: Production Infrastructure (Completed - v0.9.0)
+  - 🔄 Phase 5: Scalability (Planned - Redis, Async Tasks)
+  - 🔄 Phase 6: Gamer/RPG Tools (Planned)
 
 ## 6. FINAL CHECKLIST BEFORE OUTPUT
 
 - Did I use `uv` commands?
 - Is the new tool registered in `registry.py`?
+- Is rate limiting dependency added to router?
 - Is the UI in Turkish?
 - Is the code Python 3.13 compatible?
+- Does `make check` pass?

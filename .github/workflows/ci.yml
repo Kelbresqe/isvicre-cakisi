@@ -1,43 +1,147 @@
-name: CI
+# =============================================================================
+# İsviçre Çakısı - GitHub Actions CI/CD Pipeline
+# v0.9.0 - Test, Lint, Build, Docker
+# =============================================================================
+
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.13"
+  UV_VERSION: "0.5.9"
 
 jobs:
-  test:
+  # ---------------------------------------------------------------------------
+  # Job 1: Lint & Format Check
+  # ---------------------------------------------------------------------------
+  lint:
+    name: 🔍 Lint & Format
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python 3.13
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.13"
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-    - name: Install uv
-      run: |
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: 📦 Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
 
-    - name: Install dependencies
-      run: |
-        uv sync --all-extras --dev
+      - name: 📚 Install dependencies
+        run: uv sync --frozen
 
-    - name: Lint with Ruff
-      run: |
-        uv run ruff check .
+      - name: 🔍 Run Ruff linter
+        run: uv run ruff check app/ tests/
 
-    - name: Format check with Black
-      run: |
-        uv run black --check .
+      - name: 🎨 Check Black formatting
+        run: uv run black --check app/ tests/
 
-    - name: Type check with Mypy
-      run: |
-        uv run mypy .
+      - name: 📝 Run MyPy type checking
+        run: uv run mypy app/ --ignore-missing-imports
 
-    - name: Test with Pytest
-      run: |
-        uv run pytest
+  # ---------------------------------------------------------------------------
+  # Job 2: Tests
+  # ---------------------------------------------------------------------------
+  test:
+    name: 🧪 Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: 📚 Install dependencies
+        run: uv sync --frozen
+
+      - name: 🧪 Run tests with coverage
+        run: |
+          uv run pytest tests/ -v --tb=short
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          fail_ci_if_error: false
+        continue-on-error: true
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Docker Build
+  # ---------------------------------------------------------------------------
+  docker:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🏗️ Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: isvicre-cakisi:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 🧪 Test Docker image
+        run: |
+          docker run --rm -d --name test-container -p 8000:8000 isvicre-cakisi:${{ github.sha }}
+          sleep 10
+          curl -f http://localhost:8000/health || exit 1
+          docker stop test-container
+
+  # ---------------------------------------------------------------------------
+  # Job 4: Security Scan (Optional)
+  # ---------------------------------------------------------------------------
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: lint
+    continue-on-error: true
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: 📤 Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true

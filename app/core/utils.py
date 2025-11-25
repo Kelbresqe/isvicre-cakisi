@@ -27,11 +27,15 @@ def get_tool_templates(tool_file_path: str) -> Jinja2Templates:
     """
     Creates a Jinja2Templates instance for a specific tool.
     Includes the tool's templates directory and the global templates directory.
+    Automatically adds settings to Jinja2 globals for SEO.
     """
     tool_dir = os.path.dirname(os.path.abspath(tool_file_path))
-    return Jinja2Templates(
+    templates = Jinja2Templates(
         directory=[
             os.path.join(tool_dir, "templates"),
             os.path.join(settings.BASE_DIR, "app", "templates"),
         ]
     )
+    # Add settings to Jinja2 globals for SEO (v0.7.0)
+    templates.env.globals["settings"] = settings
+    return templates

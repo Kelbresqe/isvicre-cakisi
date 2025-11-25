@@ -1,0 +1,130 @@
+# =============================================================================
+# İsviçre Çakısı - Docker Compose Stack
+# Development and Production configurations (v0.9.0)
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Main Application
+  # ---------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: isvicre-cakisi-app
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=${ENV:-dev}
+      - DEBUG=${DEBUG:-true}
+      - DOCS_ENABLED=${DOCS_ENABLED:-true}
+      - REDOC_ENABLED=${REDOC_ENABLED:-true}
+      - MAX_REQUESTS_PER_MINUTE=${MAX_REQUESTS_PER_MINUTE:-60}
+      - MAX_UPLOAD_MB_PER_HOUR=${MAX_UPLOAD_MB_PER_HOUR:-100}
+    volumes:
+      # Mount temp directory for file processing
+      - app_temp:/app/temp
+      # Development: mount source code for hot reload
+      - ./app:/app/app:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - isvicre-network
+    restart: unless-stopped
+    labels:
+      - "prometheus.scrape=true"
+      - "prometheus.port=8000"
+      - "prometheus.path=/metrics"
+
+  # ---------------------------------------------------------------------------
+  # Prometheus - Metrics Collection
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: isvicre-cakisi-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    networks:
+      - isvicre-network
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Grafana - Dashboards & Visualization (Optional)
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.5.0
+    container_name: isvicre-cakisi-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - isvicre-network
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring # Only start with: docker compose --profile monitoring up
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  isvicre-network:
+    driver: bridge
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  app_temp:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+# -----------------------------------------------------------------------------
+# Usage:
+# -----------------------------------------------------------------------------
+# Development:
+#   docker compose up -d
+#
+# Production:
+#   ENV=prod docker compose up -d
+#
+# With Grafana monitoring:
+#   docker compose --profile monitoring up -d
+#
+# View logs:
+#   docker compose logs -f app
+#
+# Rebuild after code changes:
+#   docker compose up -d --build
+# -----------------------------------------------------------------------------

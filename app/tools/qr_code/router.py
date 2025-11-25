@@ -1,16 +1,14 @@
 import base64
 import io
-import os
 import time
 
 import qrcode
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
-from app.core.config import settings
 from app.core.observability import log_tool_call
 from app.core.rate_limit import rate_limit_dependency
+from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 # 1. Router Tanımlama
@@ -21,13 +19,7 @@ router = APIRouter(
 )
 
 # 2. Şablon Ayarları
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[
-        os.path.join(TOOL_DIR, "templates"),
-        os.path.join(settings.BASE_DIR, "app", "templates"),
-    ]
-)
+templates = get_tool_templates(__file__)
 
 # 3. Aracı Kaydetme (Registry)
 tool_info = ToolInfo(
@@ -86,8 +78,9 @@ ToolRegistry.register(tool_info, router)
 async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
+
     record_page_view("qr-code", request.headers.get("user-agent"), request.headers.get("referer"))
-    
+
     return templates.TemplateResponse(request=request, name="qr_code.html", context={"tool": tool_info})
 
 

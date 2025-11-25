@@ -1,15 +1,14 @@
-import os
 import time
 import uuid
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from PIL import Image
 from PIL.ExifTags import TAGS
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
+from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 # Router
@@ -20,13 +19,7 @@ router = APIRouter(
 )
 
 # Templates
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[
-        os.path.join(TOOL_DIR, "templates"),
-        os.path.join(settings.BASE_DIR, "app", "templates"),
-    ]
-)
+templates = get_tool_templates(__file__)
 
 # Tool Registration
 tool_info = ToolInfo(

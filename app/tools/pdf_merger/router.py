@@ -1,10 +1,8 @@
-import os
 import uuid
 from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from pypdf import PdfWriter
 
 from app.core.config import settings

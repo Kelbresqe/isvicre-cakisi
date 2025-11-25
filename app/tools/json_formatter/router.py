@@ -1,24 +1,20 @@
 import json
-import os
 import time
 
-from fastapi import APIRouter, Form, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
 from app.core.config import settings
 from app.core.observability import log_tool_call
+from app.core.rate_limit import rate_limit_dependency
+from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
-router = APIRouter(prefix="/tools/json-formatter", tags=["JSON Formatter"])
-
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[
-        os.path.join(TOOL_DIR, "templates"),
-        os.path.join(settings.BASE_DIR, "app", "templates"),
-    ]
+router = APIRouter(
+    prefix="/tools/json-formatter", tags=["JSON Formatter"], dependencies=[Depends(rate_limit_dependency)]
 )
+
+templates = get_tool_templates(__file__)
 
 tool_info = ToolInfo(
     slug="json-formatter",

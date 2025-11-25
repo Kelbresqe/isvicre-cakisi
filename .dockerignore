@@ -1,0 +1,86 @@
+# =============================================================================
+# İsviçre Çakısı - Docker Ignore File
+# Excludes unnecessary files from Docker build context
+# =============================================================================
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+!README.md
+docs/
+*.rst
+
+# Tests
+tests/
+test_*.py
+conftest.py
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Development tools
+.ruff_cache/
+.mypy_cache/
+.black_cache/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Logs and temp files
+*.log
+logs/
+temp/
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Misc
+*.bak
+*.backup
+diagnose_tools.py

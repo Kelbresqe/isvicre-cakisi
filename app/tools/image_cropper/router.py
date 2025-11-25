@@ -1,23 +1,20 @@
 """Image Cropper tool - simple manual cropping"""
 
-import os
 import time
 import uuid
 
 from fastapi import APIRouter, Depends, Form, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
 from PIL import Image
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
+from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 router = APIRouter(prefix="/tools/image-cropper", tags=["Image Cropper"], dependencies=[Depends(rate_limit_dependency)])
-TOOL_DIR = os.path.dirname(os.path.abspath(__file__))
-templates = Jinja2Templates(
-    directory=[os.path.join(TOOL_DIR, "templates"), os.path.join(settings.BASE_DIR, "app", "templates")]
-)
+
+templates = get_tool_templates(__file__)
 
 tool_info = ToolInfo(
     slug="image-cropper",
@@ -26,6 +23,7 @@ tool_info = ToolInfo(
     icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"></path></svg>',
     image_url="/static/images/image_cropper.png",
     description="Resimlerinizi manuel olarak belirttiğiniz boyutlara kırpın.",
+    short_description="Manuel koordinat ile görsel kırpma aracı",
     seo_title="Ücretsiz Resim Kırpma Aracı | İsviçre Çakısı",
     seo_description="Resimlerinizi istediğiniz boyutlara kırpın. Manuel koordinat girişi ile hassas kırpma.",
     keywords="resim kırpma, image crop, görsel kesme",
