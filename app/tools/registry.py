@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List
 
@@ -46,8 +46,10 @@ class ToolInfo:
 
     # v0.7.0: Rich content for programmatic SEO
     long_description: str = ""  # 2-4 paragraphs of detailed explanation
-    use_cases: list[str] = None  # 3-5 realistic usage scenarios
-    faq: list[dict[str, str]] = None  # Q&A pairs with "question" and "answer" keys
+    use_cases: list[str] = field(default_factory=list)  # 3-5 realistic usage scenarios
+    faq: list[dict[str, str]] = field(
+        default_factory=list
+    )  # Q&A pairs with "question" and "answer" keys
 
     # Tool capabilities and limits (v0.5.0)
     accepts_files: bool = False  # Whether tool accepts file uploads
@@ -57,18 +59,15 @@ class ToolInfo:
     )
 
     # v0.8.0: Tool Graph & Pipeline capabilities
-    suggested_next: list[ToolRelation] = None  # Next logical tools in workflow
+    suggested_next: list[ToolRelation] = field(
+        default_factory=list
+    )  # Next logical tools in workflow
     accepts_pipeline_files: bool = False  # Can consume files from pipeline
     produces_pipeline_files: bool = False  # Can produce files for pipeline
 
-    def __post_init__(self):
-        """Initialize mutable default values"""
-        if self.use_cases is None:
-            self.use_cases = []
-        if self.faq is None:
-            self.faq = []
-        if self.suggested_next is None:
-            self.suggested_next = []
+    def __post_init__(self) -> None:
+        """Initialize mutable default values - no longer needed with field()"""
+        pass
 
 
 class ToolRegistry:
