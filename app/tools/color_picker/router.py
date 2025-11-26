@@ -158,15 +158,25 @@ async def convert_color(
         h, s, lightness = hsl
         palette = {
             "complementary": [
-                rgb_to_hex(*map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 180) % 360 / 360, lightness / 100, s / 100)))
+                rgb_to_hex(
+                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 180) % 360 / 360, lightness / 100, s / 100))
+                )
             ],
             "analogous": [
-                rgb_to_hex(*map(lambda x: int(x * 255), colorsys.hls_to_rgb((h - 30) % 360 / 360, lightness / 100, s / 100))),
-                rgb_to_hex(*map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 30) % 360 / 360, lightness / 100, s / 100))),
+                rgb_to_hex(
+                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h - 30) % 360 / 360, lightness / 100, s / 100))
+                ),
+                rgb_to_hex(
+                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 30) % 360 / 360, lightness / 100, s / 100))
+                ),
             ],
             "monochromatic": [
-                rgb_to_hex(*map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, max(0, lightness - 20) / 100, s / 100))),
-                rgb_to_hex(*map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, min(100, lightness + 20) / 100, s / 100))),
+                rgb_to_hex(
+                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, max(0, lightness - 20) / 100, s / 100))
+                ),
+                rgb_to_hex(
+                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, min(100, lightness + 20) / 100, s / 100))
+                ),
             ],
         }
 
@@ -180,7 +190,9 @@ async def convert_color(
                 "rgb": f"rgb({r}, {g}, {b})",
                 "hsl": f"hsl({h}, {s}%, {lightness}%)",
                 "cmyk": f"cmyk({cmyk[0]}%, {cmyk[1]}%, {cmyk[2]}%, {cmyk[3]}%)",
-                "r": r, "g": g, "b": b,
+                "r": r,
+                "g": g,
+                "b": b,
                 "palette": palette,
             },
         )

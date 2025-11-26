@@ -92,30 +92,28 @@ DICE_TYPES = {
 }
 
 # Dice notation regex: 2d6+3, 1d20-2, 4d6kh3, etc.
-DICE_NOTATION_PATTERN = re.compile(
-    r"^(\d+)?d(\d+)(?:kh(\d+)|kl(\d+))?([+-]\d+)?$", re.IGNORECASE
-)
+DICE_NOTATION_PATTERN = re.compile(r"^(\d+)?d(\d+)(?:kh(\d+)|kl(\d+))?([+-]\d+)?$", re.IGNORECASE)
 
 
 def parse_dice_notation(notation: str) -> dict | None:
     """
     Parse dice notation like 2d6+3, 4d6kh3, 1d20-2
-    
+
     Returns:
         dict with: count, sides, keep_highest, keep_lowest, modifier
     """
     notation = notation.lower().replace(" ", "")
     match = DICE_NOTATION_PATTERN.match(notation)
-    
+
     if not match:
         return None
-    
+
     count = int(match.group(1)) if match.group(1) else 1
     sides = int(match.group(2))
     keep_highest = int(match.group(3)) if match.group(3) else None
     keep_lowest = int(match.group(4)) if match.group(4) else None
     modifier = int(match.group(5)) if match.group(5) else 0
-    
+
     # Validate
     if count < 1 or count > 100:
         return None
@@ -125,7 +123,7 @@ def parse_dice_notation(notation: str) -> dict | None:
         return None
     if keep_lowest and keep_lowest > count:
         return None
-    
+
     return {
         "count": count,
         "sides": sides,
@@ -135,18 +133,20 @@ def parse_dice_notation(notation: str) -> dict | None:
     }
 
 
-def roll_dice(count: int, sides: int, keep_highest: int | None = None, keep_lowest: int | None = None, modifier: int = 0) -> dict:
+def roll_dice(
+    count: int, sides: int, keep_highest: int | None = None, keep_lowest: int | None = None, modifier: int = 0
+) -> dict:
     """
     Roll dice and return detailed results.
     """
     # Roll all dice
     rolls = [random.randint(1, sides) for _ in range(count)]
     original_rolls = rolls.copy()
-    
+
     # Apply keep highest/lowest
     kept_rolls = rolls.copy()
     dropped_rolls = []
-    
+
     if keep_highest:
         sorted_rolls = sorted(rolls, reverse=True)
         kept_rolls = sorted_rolls[:keep_highest]
@@ -155,11 +155,11 @@ def roll_dice(count: int, sides: int, keep_highest: int | None = None, keep_lowe
         sorted_rolls = sorted(rolls)
         kept_rolls = sorted_rolls[:keep_lowest]
         dropped_rolls = sorted_rolls[keep_lowest:]
-    
+
     # Calculate total
     subtotal = sum(kept_rolls)
     total = subtotal + modifier
-    
+
     # Build expression string
     if count == 1:
         expr = str(rolls[0])
@@ -167,14 +167,14 @@ def roll_dice(count: int, sides: int, keep_highest: int | None = None, keep_lowe
         expr = " + ".join(str(r) for r in kept_rolls)
         if dropped_rolls:
             expr += f" (dropped: {', '.join(str(r) for r in dropped_rolls)})"
-    
+
     if modifier > 0:
         expr += f" + {modifier}"
     elif modifier < 0:
         expr += f" - {abs(modifier)}"
-    
+
     expr += f" = {total}"
-    
+
     return {
         "rolls": original_rolls,
         "kept": kept_rolls,
@@ -211,7 +211,7 @@ async def roll(
 ):
     """Handle dice roll request."""
     start = time.time()
-    
+
     try:
         # Parse notation if provided
         if notation and notation.strip():
@@ -223,7 +223,7 @@ async def roll(
                     name="partials/error.html",
                     context={"error": f"Geçersiz zar notasyonu: {notation}"},
                 )
-            
+
             result = roll_dice(
                 count=parsed["count"],
                 sides=parsed["sides"],
@@ -241,22 +241,22 @@ async def roll(
                     name="partials/error.html",
                     context={"error": f"Geçersiz zar tipi: {dice_type}"},
                 )
-            
+
             sides = DICE_TYPES[dice_type]
             count = max(1, min(count, 100))  # Clamp between 1-100
             modifier = max(-1000, min(modifier, 1000))  # Clamp modifier
-            
+
             result = roll_dice(count=count, sides=sides, modifier=modifier)
-            
+
             # Build notation string
             notation_used = f"{count}{dice_type}"
             if modifier > 0:
                 notation_used += f"+{modifier}"
             elif modifier < 0:
                 notation_used += str(modifier)
-        
+
         log_tool_call("dice-roller", "success", (time.time() - start) * 1000, {"notation": notation_used})
-        
+
         return templates.TemplateResponse(
             request=request,
             name="partials/result.html",
@@ -265,7 +265,7 @@ async def roll(
                 "notation": notation_used,
             },
         )
-    
+
     except Exception as e:
         log_tool_call("dice-roller", "error", (time.time() - start) * 1000, {"error": str(e)})
         return templates.TemplateResponse(

@@ -103,12 +103,14 @@ async def convert_base(
         # Convert to all bases
         results = {
             "binary": bin(decimal_value)[2:],  # Remove '0b' prefix
-            "octal": oct(decimal_value)[2:],   # Remove '0o' prefix
+            "octal": oct(decimal_value)[2:],  # Remove '0o' prefix
             "decimal": str(decimal_value),
-            "hexadecimal": hex(decimal_value)[2:].upper(), # Remove '0x' prefix and uppercase
+            "hexadecimal": hex(decimal_value)[2:].upper(),  # Remove '0x' prefix and uppercase
         }
 
-        log_tool_call("base-converter", "success", (time.time() - start) * 1000, {"from_base": from_base, "value": value})
+        log_tool_call(
+            "base-converter", "success", (time.time() - start) * 1000, {"from_base": from_base, "value": value}
+        )
 
         return templates.TemplateResponse(
             request=request,

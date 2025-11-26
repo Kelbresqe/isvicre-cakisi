@@ -1,36 +1,36 @@
 <div class="space-y-6 animate-fade-in">
     <!-- Color Preview & Codes -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
         <!-- Large Preview -->
         <div class="h-32 w-full transition-colors duration-500" style="background-color: {{ hex }}"></div>
         
         <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- HEX -->
-            <div class="p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-indigo-50 transition-colors"
+            <div class="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                  onclick="navigator.clipboard.writeText('{{ hex }}')">
-                <div class="text-xs text-gray-500 mb-1">HEX</div>
-                <div class="font-mono font-bold text-gray-800 group-hover:text-indigo-600">{{ hex }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">HEX</div>
+                <div class="font-mono font-bold text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ hex }}</div>
             </div>
             
             <!-- RGB -->
-            <div class="p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-indigo-50 transition-colors"
+            <div class="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                  onclick="navigator.clipboard.writeText('{{ rgb }}')">
-                <div class="text-xs text-gray-500 mb-1">RGB</div>
-                <div class="font-mono font-bold text-gray-800 group-hover:text-indigo-600">{{ rgb }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">RGB</div>
+                <div class="font-mono font-bold text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ rgb }}</div>
             </div>
             
             <!-- HSL -->
-            <div class="p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-indigo-50 transition-colors"
+            <div class="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                  onclick="navigator.clipboard.writeText('{{ hsl }}')">
-                <div class="text-xs text-gray-500 mb-1">HSL</div>
-                <div class="font-mono font-bold text-gray-800 group-hover:text-indigo-600">{{ hsl }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">HSL</div>
+                <div class="font-mono font-bold text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ hsl }}</div>
             </div>
             
             <!-- CMYK -->
-            <div class="p-3 bg-gray-50 rounded-lg group cursor-pointer hover:bg-indigo-50 transition-colors"
+            <div class="p-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg group cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
                  onclick="navigator.clipboard.writeText('{{ cmyk }}')">
-                <div class="text-xs text-gray-500 mb-1">CMYK</div>
-                <div class="font-mono font-bold text-gray-800 group-hover:text-indigo-600">{{ cmyk }}</div>
+                <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">CMYK</div>
+                <div class="font-mono font-bold text-gray-800 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{ cmyk }}</div>
             </div>
         </div>
     </div>
@@ -38,15 +38,15 @@
     <!-- Palettes -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Complementary -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Tamamlayıcı</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Tamamlayıcı</h3>
             <div class="flex h-16 rounded-lg overflow-hidden shadow-sm">
                 <div class="flex-1" style="background-color: {{ hex }}" title="{{ hex }}"></div>
                 {% for color in palette.complementary %}
                 <div class="flex-1" style="background-color: {{ color }}" title="{{ color }}"></div>
                 {% endfor %}
             </div>
-            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500">
+            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500 dark:text-gray-400">
                 <span>{{ hex }}</span>
                 {% for color in palette.complementary %}
                 <span>{{ color }}</span>
@@ -55,15 +55,15 @@
         </div>
 
         <!-- Analogous -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Analog</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Analog</h3>
             <div class="flex h-16 rounded-lg overflow-hidden shadow-sm">
                 {% for color in palette.analogous %}
                 <div class="flex-1" style="background-color: {{ color }}" title="{{ color }}"></div>
                 {% endfor %}
                 <div class="flex-1" style="background-color: {{ hex }}" title="{{ hex }}"></div>
             </div>
-            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500">
+            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500 dark:text-gray-400">
                 {% for color in palette.analogous %}
                 <span>{{ color }}</span>
                 {% endfor %}
@@ -72,15 +72,15 @@
         </div>
 
         <!-- Monochromatic -->
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Monokromatik</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Monokromatik</h3>
             <div class="flex h-16 rounded-lg overflow-hidden shadow-sm">
                 {% for color in palette.monochromatic %}
                 <div class="flex-1" style="background-color: {{ color }}" title="{{ color }}"></div>
                 {% endfor %}
                 <div class="flex-1" style="background-color: {{ hex }}" title="{{ hex }}"></div>
             </div>
-            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500">
+            <div class="mt-2 flex justify-between text-xs font-mono text-gray-500 dark:text-gray-400">
                 {% for color in palette.monochromatic %}
                 <span>{{ color }}</span>
                 {% endfor %}

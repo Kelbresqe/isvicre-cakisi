@@ -1,5 +1,50 @@
 # Changelog
 
+## [1.2.0] - 2025-11-26
+
+### 🌙 Phase 7B - UI/UX Improvements
+
+#### Dark Mode Support
+
+- **Core Implementation** (`app/templates/base.html`):
+  - Tailwind CSS `darkMode: 'class'` configuration
+  - Alpine.js theme state management with localStorage persistence
+  - System preference detection (prefers-color-scheme)
+  - Smooth transition animations
+- **Global Components**:
+  - `hero.html`: Dark gradient backgrounds
+  - `tool_card.html`: Dark card styles with hover effects
+  - `index.html`: Dark search bar and text colors
+- **Tool Templates**: Full dark mode support for all new tools
+  - Dice Roller, Hash Generator, Color Picker
+  - Lorem Ipsum, Base Converter
+  - Both page.html and result.html templates updated
+
+#### PWA (Progressive Web App) Support
+
+- **manifest.json**: Complete PWA manifest
+  - App shortcuts for quick tool access
+  - SVG icons (192x192, 512x512)
+  - Categories, screenshots, orientation settings
+- **Service Worker** (`app/static/sw.js`):
+  - Cache-first strategy for static assets
+  - Network-first for dynamic content
+  - Offline support preparation
+- **Meta Tags**: Apple/Android PWA meta tags in base.html
+
+#### Keyboard Shortcuts
+
+- **Alpine.js Implementation**:
+  - `?` - Show/hide shortcuts modal
+  - `H` - Navigate to home page
+  - `D` - Toggle dark/light theme
+  - `/` or `⌘K` - Focus search input
+  - `Esc` - Close modals
+- **UI Elements**:
+  - Shortcuts button in navbar
+  - Beautiful modal with key hints
+  - Input field detection (shortcuts disabled when typing)
+
 ## [1.1.0] - 2025-11-25
 
 ### 🎨 Phase 7A - New Tools & Design

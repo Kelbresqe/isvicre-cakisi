@@ -1,0 +1,65 @@
+{
+  "name": "İsviçre Çakısı - Dijital Araçlar",
+  "short_name": "İsviçre Çakısı",
+  "description": "Gündelik dijital işleriniz için hepsi bir arada, güvenli ve hızlı araçlar. PDF, resim, QR kod, şifre ve daha fazlası.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "orientation": "any",
+  "categories": ["utilities", "productivity"],
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "/static/images/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/images/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Ana Sayfa - Desktop"
+    },
+    {
+      "src": "/static/images/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ana Sayfa - Mobil"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "QR Kod Oluştur",
+      "short_name": "QR",
+      "description": "Hızlıca QR kod oluşturun",
+      "url": "/tools/qr-code",
+      "icons": [{ "src": "/static/images/qr_code.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Şifre Üret",
+      "short_name": "Şifre",
+      "description": "Güçlü şifre oluşturun",
+      "url": "/tools/password-generator",
+      "icons": [{ "src": "/static/images/password_generator.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "PDF Birleştir",
+      "short_name": "PDF",
+      "description": "PDF dosyalarını birleştirin",
+      "url": "/tools/pdf-merger",
+      "icons": [{ "src": "/static/images/pdf_merger.png", "sizes": "192x192" }]
+    }
+  ]
+}

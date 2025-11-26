@@ -1,7 +1,7 @@
-<div class="bg-white rounded-xl shadow-lg p-6 animate-fade-in">
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 animate-fade-in transition-colors duration-300">
     <!-- Notation -->
     <div class="text-center mb-4">
-        <span class="inline-block px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full font-mono font-semibold">
+        <span class="inline-block px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full font-mono font-semibold">
             {{ notation }}
         </span>
     </div>
@@ -14,7 +14,7 @@
             {% elif result.is_fumble %}
                 text-red-500
             {% else %}
-                text-gray-800
+                text-gray-800 dark:text-white
             {% endif %}
         ">
             {{ result.total }}
@@ -32,8 +32,8 @@
     </div>
 
     <!-- Breakdown -->
-    <div class="bg-gray-50 rounded-lg p-4 text-center">
-        <div class="text-gray-600 text-lg font-mono">
+    <div class="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-4 text-center">
+        <div class="text-gray-600 dark:text-gray-300 text-lg font-mono">
             {{ result.expression }}
         </div>
     </div>
@@ -41,18 +41,18 @@
     <!-- Individual Dice -->
     {% if result.rolls|length > 1 %}
     <div class="mt-4">
-        <h4 class="text-sm font-medium text-gray-500 mb-2 text-center">Bireysel Zarlar:</h4>
+        <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2 text-center">Bireysel Zarlar:</h4>
         <div class="flex flex-wrap justify-center gap-2">
             {% for roll in result.rolls %}
             <div class="w-12 h-12 flex items-center justify-center 
                 {% if roll in result.dropped %}
-                    bg-gray-200 text-gray-400 line-through
+                    bg-gray-200 dark:bg-slate-600 text-gray-400 dark:text-gray-500 line-through
                 {% elif roll == result.rolls|max %}
-                    bg-green-100 text-green-700 ring-2 ring-green-400
+                    bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 ring-2 ring-green-400
                 {% elif roll == result.rolls|min %}
-                    bg-red-100 text-red-700
+                    bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400
                 {% else %}
-                    bg-indigo-100 text-indigo-700
+                    bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400
                 {% endif %}
                 rounded-lg font-bold text-lg">
                 {{ roll }}
@@ -60,7 +60,7 @@
             {% endfor %}
         </div>
         {% if result.dropped %}
-        <p class="text-center text-sm text-gray-400 mt-2">
+        <p class="text-center text-sm text-gray-400 dark:text-gray-500 mt-2">
             Üstü çizili zarlar hesaba katılmadı
         </p>
         {% endif %}

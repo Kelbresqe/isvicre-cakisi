@@ -1,37 +1,37 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
     <!-- Binary -->
-    <div class="bg-white rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all duration-300">
         <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Binary (2)</h3>
-            <button onclick="navigator.clipboard.writeText('{{ results.binary }}')" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Kopyala">📋</button>
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Binary (2)</h3>
+            <button onclick="navigator.clipboard.writeText('{{ results.binary }}')" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Kopyala">📋</button>
         </div>
-        <div class="font-mono text-xl text-gray-800 break-all">{{ results.binary }}</div>
+        <div class="font-mono text-xl text-gray-800 dark:text-white break-all">{{ results.binary }}</div>
     </div>
 
     <!-- Octal -->
-    <div class="bg-white rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all duration-300">
         <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Octal (8)</h3>
-            <button onclick="navigator.clipboard.writeText('{{ results.octal }}')" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Kopyala">📋</button>
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Octal (8)</h3>
+            <button onclick="navigator.clipboard.writeText('{{ results.octal }}')" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Kopyala">📋</button>
         </div>
-        <div class="font-mono text-xl text-gray-800 break-all">{{ results.octal }}</div>
+        <div class="font-mono text-xl text-gray-800 dark:text-white break-all">{{ results.octal }}</div>
     </div>
 
     <!-- Decimal -->
-    <div class="bg-white rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all duration-300">
         <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Decimal (10)</h3>
-            <button onclick="navigator.clipboard.writeText('{{ results.decimal }}')" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Kopyala">📋</button>
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Decimal (10)</h3>
+            <button onclick="navigator.clipboard.writeText('{{ results.decimal }}')" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Kopyala">📋</button>
         </div>
-        <div class="font-mono text-xl text-gray-800 break-all">{{ results.decimal }}</div>
+        <div class="font-mono text-xl text-gray-800 dark:text-white break-all">{{ results.decimal }}</div>
     </div>
 
     <!-- Hexadecimal -->
-    <div class="bg-white rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 relative group hover:ring-2 hover:ring-indigo-500 transition-all duration-300">
         <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Hexadecimal (16)</h3>
-            <button onclick="navigator.clipboard.writeText('{{ results.hexadecimal }}')" class="text-gray-400 hover:text-indigo-600 transition-colors" title="Kopyala">📋</button>
+            <h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hexadecimal (16)</h3>
+            <button onclick="navigator.clipboard.writeText('{{ results.hexadecimal }}')" class="text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" title="Kopyala">📋</button>
         </div>
-        <div class="font-mono text-xl text-gray-800 break-all">{{ results.hexadecimal }}</div>
+        <div class="font-mono text-xl text-gray-800 dark:text-white break-all">{{ results.hexadecimal }}</div>
     </div>
 </div>

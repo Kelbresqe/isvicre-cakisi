@@ -148,7 +148,9 @@ async def hash_text(
                 )
             hashes = {algorithm: calculate_hash(data, algorithm)}
 
-        log_tool_call("hash-generator", "success", (time.time() - start) * 1000, {"source": "text", "algorithm": algorithm})
+        log_tool_call(
+            "hash-generator", "success", (time.time() - start) * 1000, {"source": "text", "algorithm": algorithm}
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -203,7 +205,12 @@ async def hash_file(
                 )
             hashes = {algorithm: calculate_hash(contents, algorithm)}
 
-        log_tool_call("hash-generator", "success", (time.time() - start) * 1000, {"source": "file", "algorithm": algorithm, "size": len(contents)})
+        log_tool_call(
+            "hash-generator",
+            "success",
+            (time.time() - start) * 1000,
+            {"source": "file", "algorithm": algorithm, "size": len(contents)},
+        )
 
         return templates.TemplateResponse(
             request=request,

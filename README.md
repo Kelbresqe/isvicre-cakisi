@@ -2,7 +2,7 @@
 
 Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasarımcılar ve günlük kullanıcılar için pratik çözümler sunar.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![Python](https://img.shields.io/badge/python-3.13+-green)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Tests](https://img.shields.io/badge/tests-96%20passing-success)
@@ -14,6 +14,9 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 - **Hızlı ve Güvenli:** `uv` paket yöneticisi, rate limiting ve `puremagic` ile dosya güvenliği
 - **Production Ready:** Docker, Prometheus metrics, structured logging
 - **Redis Entegrasyonu:** Dağıtık deployment için Redis desteği, otomatik fallback (v1.0.0)
+- **🌙 Dark Mode:** Sistem tercihine duyarlı, localStorage ile kalıcı tema desteği (v1.2.0)
+- **📱 PWA Desteği:** Masaüstüne kurulum, offline destek, uygulama kısayolları (v1.2.0)
+- **⌨️ Klavye Kısayolları:** Hızlı navigasyon için kısayol tuşları (v1.2.0)
 - **Kapsamlı Araçlar:** 18 araç tek bir yerde
 
 ## 🛠 Araçlar (Tools)
@@ -50,16 +53,16 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 
 ### Tasarım Araçları (2)
 
-| Araç                 | Açıklama                         |
-| -------------------- | -------------------------------- |
-| **Renk Seçici**      | HEX, RGB, HSL, CMYK, Paletler    |
-| **Lorem Ipsum**      | Rastgele metin üretici           |
+| Araç            | Açıklama                      |
+| --------------- | ----------------------------- |
+| **Renk Seçici** | HEX, RGB, HSL, CMYK, Paletler |
+| **Lorem Ipsum** | Rastgele metin üretici        |
 
 ### Oyun & Eğlence (1)
 
-| Araç                 | Açıklama                         |
-| -------------------- | -------------------------------- |
-| **Zar Atma**         | D4-D100, Özel notasyon (2d6+3)   |
+| Araç         | Açıklama                       |
+| ------------ | ------------------------------ |
+| **Zar Atma** | D4-D100, Özel notasyon (2d6+3) |
 
 ## 🏗 Mimari
 

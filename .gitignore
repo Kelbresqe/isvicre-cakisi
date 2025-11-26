@@ -62,3 +62,4 @@ temp/
 .seo_content_reference.py
 .phase_a_progress.txt
 diagnose_tools.py
+.playwright-mcp/

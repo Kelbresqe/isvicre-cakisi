@@ -67,26 +67,187 @@
     </script>
     {% endif %}
 
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="İsviçre Çakısı">
+    <link rel="apple-touch-icon" href="/static/images/icon-192.svg">
+    <meta name="mobile-web-app-capable" content="yes">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151f32',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
+        .kbd { @apply px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-xs font-mono; }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-white">
-    <nav class="p-4 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+<body 
+    class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-white min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-white transition-colors duration-300"
+    x-data="{ 
+        darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
+        showShortcuts: false,
+        toggleTheme() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
+            if (this.darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        },
+        handleKeydown(event) {
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+            if (event.key === '?' || (event.shiftKey && event.key === '/')) { 
+                event.preventDefault();
+                this.showShortcuts = !this.showShortcuts;
+            }
+            if (event.key === 'h' || event.key === 'H') { 
+                window.location.href = '/';
+            }
+            if (event.key === 'd' || event.key === 'D') { 
+                this.toggleTheme();
+            }
+            if (event.key === '/' || (event.metaKey && event.key === 'k')) { 
+                event.preventDefault();
+                const searchInput = document.querySelector('input[x-model=search]');
+                if (searchInput) searchInput.focus();
+            }
+            if (event.key === 'Escape') { 
+                this.showShortcuts = false;
+            }
+        }
+    }"
+    x-init="$watch('darkMode', val => val ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark')); if(darkMode) document.documentElement.classList.add('dark');"
+    @keydown.window="handleKeydown($event)"
+>
+    <!-- Keyboard Shortcuts Modal -->
+    <div 
+        x-show="showShortcuts" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        @click.self="showShortcuts = false"
+    >
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-white">⌨️ Klavye Kısayolları</h3>
+                <button @click="showShortcuts = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                    <span class="text-gray-700 dark:text-gray-300">Kısayolları Göster</span>
+                    <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">?</kbd>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                    <span class="text-gray-700 dark:text-gray-300">Ana Sayfa</span>
+                    <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">H</kbd>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                    <span class="text-gray-700 dark:text-gray-300">Tema Değiştir</span>
+                    <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">D</kbd>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                    <span class="text-gray-700 dark:text-gray-300">Arama</span>
+                    <div class="flex gap-1">
+                        <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">/</kbd>
+                        <span class="text-gray-400 dark:text-gray-500">veya</span>
+                        <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">⌘K</kbd>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                    <span class="text-gray-700 dark:text-gray-300">Kapat</span>
+                    <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">Esc</kbd>
+                </div>
+            </div>
+            <p class="mt-4 text-xs text-center text-gray-400 dark:text-gray-500">
+                Kısayollar sadece input alanları dışında çalışır
+            </p>
+        </div>
+    </div>
+
+    <nav class="p-4 border-b border-gray-200 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="/" class="text-xl font-bold text-emerald-400 tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <a href="/" class="text-xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <span>🇨🇭</span>
                 <span>İsviçre Çakısı</span>
             </a>
-            <div class="text-xs text-slate-500 font-mono">v{{ settings.VERSION }}</div>
+            
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Keyboard Shortcuts Button -->
+                <button 
+                    @click="showShortcuts = true"
+                    class="hidden sm:flex p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-label="Klavye Kısayolları"
+                    title="Klavye Kısayolları (?)"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    </svg>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button 
+                    @click="toggleTheme()" 
+                    class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    aria-label="Toggle Dark Mode"
+                    title="Tema Değiştir (D)"
+                >
+                    <!-- Sun Icon -->
+                    <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+                
+                <div class="text-xs text-gray-500 dark:text-slate-500 font-mono">v{{ settings.VERSION }}</div>
+            </div>
         </div>
     </nav>
 
     <main class="container mx-auto p-6" hx-boost="true">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then((registration) => {
+                        console.log('[App] Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('[App] Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
