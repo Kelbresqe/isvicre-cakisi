@@ -5,7 +5,13 @@ Provides Prometheus-compatible metrics for monitoring and alerting.
 Exposes /metrics endpoint for Prometheus scraping.
 """
 
-from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, Info, generate_latest
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Histogram,
+    Info,
+    generate_latest,
+)
 
 from app.core.config import settings
 
@@ -93,11 +99,17 @@ def record_request(method: str, endpoint: str, status: int, duration: float) -> 
     """
     # Normalize endpoint to avoid high cardinality
     normalized_endpoint = normalize_endpoint(endpoint)
-    REQUEST_COUNT.labels(method=method, endpoint=normalized_endpoint, status=str(status)).inc()
-    REQUEST_LATENCY.labels(method=method, endpoint=normalized_endpoint).observe(duration)
+    REQUEST_COUNT.labels(
+        method=method, endpoint=normalized_endpoint, status=str(status)
+    ).inc()
+    REQUEST_LATENCY.labels(method=method, endpoint=normalized_endpoint).observe(
+        duration
+    )
 
 
-def record_tool_call(tool_slug: str, status: str, duration_seconds: float, file_size: int | None = None) -> None:
+def record_tool_call(
+    tool_slug: str, status: str, duration_seconds: float, file_size: int | None = None
+) -> None:
     """
     Record a tool API call for Prometheus metrics.
 

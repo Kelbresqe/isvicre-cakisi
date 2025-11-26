@@ -252,7 +252,12 @@ async def generate_text(
                 else:
                     result[0] = standard + " " + first
 
-        log_tool_call("lorem-ipsum", "success", (time.time() - start) * 1000, {"count": count, "type": type})
+        log_tool_call(
+            "lorem-ipsum",
+            "success",
+            (time.time() - start) * 1000,
+            {"count": count, "type": type},
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -265,7 +270,9 @@ async def generate_text(
         )
 
     except Exception as e:
-        log_tool_call("lorem-ipsum", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "lorem-ipsum", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",

@@ -76,9 +76,15 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("password-generator", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "password-generator",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
-    return templates.TemplateResponse(request=request, name="password_generator.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="password_generator.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/generate", response_class=HTMLResponse)

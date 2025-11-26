@@ -88,9 +88,13 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("pdf-merger", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "pdf-merger", request.headers.get("user-agent"), request.headers.get("referer")
+    )
 
-    return templates.TemplateResponse(request=request, name="merger.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="merger.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/merge", response_class=HTMLResponse)

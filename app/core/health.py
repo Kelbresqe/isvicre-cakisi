@@ -43,7 +43,11 @@ def check_temp_directory() -> dict:
         test_file.write_text("ok")
         content = test_file.read_text()
         test_file.unlink()
-        return {"status": "ok", "path": str(settings.TEMP_DIR), "writable": content == "ok"}
+        return {
+            "status": "ok",
+            "path": str(settings.TEMP_DIR),
+            "writable": content == "ok",
+        }
     except Exception as e:
         return {"status": "error", "path": str(settings.TEMP_DIR), "error": str(e)}
 
@@ -55,7 +59,9 @@ def check_memory() -> dict:
 
         usage = resource.getrusage(resource.RUSAGE_SELF)
         # Convert to MB
-        memory_mb = usage.ru_maxrss / (1024 * 1024) if hasattr(usage, "ru_maxrss") else 0
+        memory_mb = (
+            usage.ru_maxrss / (1024 * 1024) if hasattr(usage, "ru_maxrss") else 0
+        )
         # On macOS, ru_maxrss is in bytes, on Linux it's in KB
         import sys
 
@@ -108,7 +114,9 @@ def get_health_status() -> HealthStatus:
     # Determine overall status
     # Redis is optional, so "disabled" or "unavailable" doesn't mean unhealthy
     critical_checks = ["temp_directory", "memory"]
-    all_critical_ok = all(checks.get(c, {}).get("status") in ["ok", "unknown"] for c in critical_checks)
+    all_critical_ok = all(
+        checks.get(c, {}).get("status") in ["ok", "unknown"] for c in critical_checks
+    )
     redis_status = checks.get("redis", {}).get("status")
     any_error = any(c.get("status") == "error" for c in checks.values())
 

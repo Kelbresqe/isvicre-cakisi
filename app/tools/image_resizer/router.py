@@ -1,7 +1,15 @@
 import os
 import time
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Form, HTTPException, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import FileResponse, HTMLResponse
 from PIL import Image
 
@@ -79,7 +87,10 @@ Modern web standartlarına uygun çıktı üretir ve tüm popüler tarayıcılar
             description="Boyutlandırdığınız görselin metadatasını kontrol edin",
         ),
         ToolRelation(
-            slug="image-cropper", relation_type="next", label="Kırp", description="Görseli istediğiniz alana kırpın"
+            slug="image-cropper",
+            relation_type="next",
+            label="Kırp",
+            description="Görseli istediğiniz alana kırpın",
         ),
     ],
 )
@@ -91,9 +102,15 @@ ToolRegistry.register(tool_info, router)
 @router.get("/", response_class=HTMLResponse)
 async def page(request: Request):
     # v0.7.0: Analytics tracking
-    record_page_view("image-resizer", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "image-resizer",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
-    return templates.TemplateResponse(request=request, name="resizer.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="resizer.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/resize", response_class=HTMLResponse)
@@ -109,7 +126,9 @@ async def resize(
     try:
         # 1. Yükle (Common Pipeline)
         if url:
-            raise HTTPException(status_code=400, detail="URL'den yükleme şu an devre dışı.")
+            raise HTTPException(
+                status_code=400, detail="URL'den yükleme şu an devre dışı."
+            )
 
         img, filename, original_size = await validate_and_load_image(file)
 
@@ -178,7 +197,12 @@ async def resize(
             return f"{size:.2f} GB"
 
         duration = (time.time() - start_time) * 1000
-        log_tool_call("image-resizer", "success", duration, {"orig": f"{orig_w}x{orig_h}", "new": f"{new_w}x{new_h}"})
+        log_tool_call(
+            "image-resizer",
+            "success",
+            duration,
+            {"orig": f"{orig_w}x{orig_h}", "new": f"{new_w}x{new_h}"},
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -220,4 +244,6 @@ async def download(filename: str, background_tasks: BackgroundTasks):
     # Dosyayı gönderdikten sonra sil
     background_tasks.add_task(os.remove, file_path)
 
-    return FileResponse(path=file_path, filename=filename, media_type="application/octet-stream")
+    return FileResponse(
+        path=file_path, filename=filename, media_type="application/octet-stream"
+    )

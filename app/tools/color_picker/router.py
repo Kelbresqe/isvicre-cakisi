@@ -146,7 +146,9 @@ async def convert_color(
                 return templates.TemplateResponse(
                     request=request,
                     name="partials/error.html",
-                    context={"error": "Geçersiz renk formatı. HEX (#FF0000) veya RGB (rgb(255,0,0)) kullanın."},
+                    context={
+                        "error": "Geçersiz renk formatı. HEX (#FF0000) veya RGB (rgb(255,0,0)) kullanın."
+                    },
                 )
 
         r, g, b = rgb
@@ -159,28 +161,58 @@ async def convert_color(
         palette = {
             "complementary": [
                 rgb_to_hex(
-                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 180) % 360 / 360, lightness / 100, s / 100))
+                    *map(
+                        lambda x: int(x * 255),
+                        colorsys.hls_to_rgb(
+                            (h + 180) % 360 / 360, lightness / 100, s / 100
+                        ),
+                    )
                 )
             ],
             "analogous": [
                 rgb_to_hex(
-                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h - 30) % 360 / 360, lightness / 100, s / 100))
+                    *map(
+                        lambda x: int(x * 255),
+                        colorsys.hls_to_rgb(
+                            (h - 30) % 360 / 360, lightness / 100, s / 100
+                        ),
+                    )
                 ),
                 rgb_to_hex(
-                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb((h + 30) % 360 / 360, lightness / 100, s / 100))
+                    *map(
+                        lambda x: int(x * 255),
+                        colorsys.hls_to_rgb(
+                            (h + 30) % 360 / 360, lightness / 100, s / 100
+                        ),
+                    )
                 ),
             ],
             "monochromatic": [
                 rgb_to_hex(
-                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, max(0, lightness - 20) / 100, s / 100))
+                    *map(
+                        lambda x: int(x * 255),
+                        colorsys.hls_to_rgb(
+                            h / 360, max(0, lightness - 20) / 100, s / 100
+                        ),
+                    )
                 ),
                 rgb_to_hex(
-                    *map(lambda x: int(x * 255), colorsys.hls_to_rgb(h / 360, min(100, lightness + 20) / 100, s / 100))
+                    *map(
+                        lambda x: int(x * 255),
+                        colorsys.hls_to_rgb(
+                            h / 360, min(100, lightness + 20) / 100, s / 100
+                        ),
+                    )
                 ),
             ],
         }
 
-        log_tool_call("color-picker", "success", (time.time() - start) * 1000, {"color": color, "hex": hex_val})
+        log_tool_call(
+            "color-picker",
+            "success",
+            (time.time() - start) * 1000,
+            {"color": color, "hex": hex_val},
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -198,7 +230,9 @@ async def convert_color(
         )
 
     except Exception as e:
-        log_tool_call("color-picker", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "color-picker", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",

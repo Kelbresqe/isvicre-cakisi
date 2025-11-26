@@ -21,7 +21,10 @@ class TestHealthEndpoints:
         response = client.get("/health")
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] in ["healthy", "degraded"]  # degraded ok if Redis unavailable
+        assert data["status"] in [
+            "healthy",
+            "degraded",
+        ]  # degraded ok if Redis unavailable
         assert "version" in data
         assert "uptime_seconds" in data
         assert "timestamp" in data

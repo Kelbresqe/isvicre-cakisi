@@ -75,9 +75,15 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("markdown-preview", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "markdown-preview",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
-    return templates.TemplateResponse(request=request, name="markdown_preview.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="markdown_preview.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/render", response_class=HTMLResponse)
@@ -91,7 +97,9 @@ async def render_markdown(
             return ""
 
         # Render Markdown
-        html = markdown.markdown(content, extensions=["fenced_code", "tables", "nl2br", "sane_lists"])
+        html = markdown.markdown(
+            content, extensions=["fenced_code", "tables", "nl2br", "sane_lists"]
+        )
 
         duration = (time.time() - start_time) * 1000
         log_tool_call("markdown-preview", "success", duration, {"length": len(content)})

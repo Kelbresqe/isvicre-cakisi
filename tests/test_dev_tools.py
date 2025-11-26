@@ -79,7 +79,10 @@ def test_url_encode_full_url(client):
 
 def test_url_encode_with_query_params(client):
     # Test encoding query parameters
-    data = {"text_input": "https://example.com/search?q=hello world&lang=tr", "action": "encode"}
+    data = {
+        "text_input": "https://example.com/search?q=hello world&lang=tr",
+        "action": "encode",
+    }
     response = client.post("/tools/url-encoder/convert", data=data)
     assert response.status_code == 200
     # Space in query should be encoded
@@ -121,7 +124,10 @@ def test_url_turkish_characters(client):
 
 def test_url_decode_turkish(client):
     """Test decoding of Turkish characters"""
-    data = {"text_input": "%C5%9F%C4%9F%C3%BC%C3%B6%C3%A7%C4%B1%C4%B0", "action": "decode"}
+    data = {
+        "text_input": "%C5%9F%C4%9F%C3%BC%C3%B6%C3%A7%C4%B1%C4%B0",
+        "action": "decode",
+    }
     response = client.post("/tools/url-encoder/convert", data=data)
     assert response.status_code == 200
     assert "şğüöçıİ" in response.text
@@ -133,12 +139,17 @@ def test_url_special_characters(client):
     response = client.post("/tools/url-encoder/convert", data=data)
     assert response.status_code == 200
     # @ and # should be encoded in fragments
-    assert "%40" in response.text or "@" in response.text  # @ may or may not be encoded depending on context
+    assert (
+        "%40" in response.text or "@" in response.text
+    )  # @ may or may not be encoded depending on context
 
 
 def test_url_safe_characters_preserved(client):
     """Test that URL-safe characters are preserved in query strings"""
-    data = {"text_input": "https://example.com?a=1&b=2&name=test_user-2024", "action": "encode"}
+    data = {
+        "text_input": "https://example.com?a=1&b=2&name=test_user-2024",
+        "action": "encode",
+    }
     response = client.post("/tools/url-encoder/convert", data=data)
     assert response.status_code == 200
     # These should be preserved in query strings

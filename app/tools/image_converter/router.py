@@ -94,9 +94,15 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("image-converter", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "image-converter",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
-    return templates.TemplateResponse(request=request, name="converter.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="converter.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/convert", response_class=HTMLResponse)
@@ -200,4 +206,6 @@ async def download(filename: str, background_tasks: BackgroundTasks):
     # Dosyayı gönderdikten sonra sil
     background_tasks.add_task(os.remove, file_path)
 
-    return FileResponse(path=file_path, filename=filename, media_type="application/octet-stream")
+    return FileResponse(
+        path=file_path, filename=filename, media_type="application/octet-stream"
+    )

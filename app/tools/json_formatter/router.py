@@ -11,7 +11,9 @@ from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 router = APIRouter(
-    prefix="/tools/json-formatter", tags=["JSON Formatter"], dependencies=[Depends(rate_limit_dependency)]
+    prefix="/tools/json-formatter",
+    tags=["JSON Formatter"],
+    dependencies=[Depends(rate_limit_dependency)],
 )
 
 templates = get_tool_templates(__file__)
@@ -84,9 +86,15 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("json-formatter", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "json-formatter",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
-    return templates.TemplateResponse(request=request, name="formatter.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="formatter.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/format", response_class=HTMLResponse)
@@ -107,7 +115,9 @@ async def format_json(
         cached = get_cached_result("json-formatter", json_input, action=action)
 
         if cached:
-            log_tool_call("json-formatter", "success", 0, {"action": action, "cached": True})
+            log_tool_call(
+                "json-formatter", "success", 0, {"action": action, "cached": True}
+            )
             return f"""
             <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden animate-fade-in">
                 <div class="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700">
@@ -132,7 +142,12 @@ async def format_json(
         set_cached_result("json-formatter", json_input, result, action=action)
 
         duration = (time.time() - start_time) * 1000
-        log_tool_call("json-formatter", "success", duration, {"action": action, "size": len(json_input)})
+        log_tool_call(
+            "json-formatter",
+            "success",
+            duration,
+            {"action": action, "size": len(json_input)},
+        )
 
         return f"""
         <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden animate-fade-in">

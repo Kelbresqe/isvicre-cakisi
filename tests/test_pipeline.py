@@ -31,7 +31,10 @@ def sample_file():
 def test_create_pipeline_file(sample_file):
     """Test creating a pipeline file"""
     pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain", original_name="test.txt"
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
+        original_name="test.txt",
     )
 
     # Should return a pipeline ID
@@ -59,7 +62,10 @@ def test_pipeline_file_ttl_expiry(sample_file):
     """Test that pipeline files expire after TTL"""
     # Create with 1 second TTL
     pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain", ttl_seconds=1
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
+        ttl_seconds=1,
     )
 
     # Should be resolvable immediately
@@ -78,7 +84,10 @@ def test_cleanup_expired_files(sample_file):
     """Test cleanup of expired pipeline files"""
     # Create file with short TTL
     pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain", ttl_seconds=1
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
+        ttl_seconds=1,
     )
 
     # Wait for expiry
@@ -98,7 +107,11 @@ def test_cleanup_expired_files(sample_file):
 def test_pipeline_stats(sample_file):
     """Test pipeline statistics"""
     # Create a file
-    create_pipeline_file(source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain")
+    create_pipeline_file(
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
+    )
 
     stats = get_pipeline_stats()
 
@@ -118,7 +131,9 @@ def test_pipeline_stats(sample_file):
 def test_pipeline_file_security_no_path_traversal(sample_file):
     """Test that pipeline IDs don't expose file paths"""
     pipeline_id = create_pipeline_file(
-        source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain"
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
     )
 
     # Pipeline ID should not contain path separators
@@ -134,7 +149,11 @@ def test_pipeline_file_copy_not_move(sample_file):
     """Test that original file is preserved (copy, not move)"""
     original_exists_before = os.path.exists(sample_file)
 
-    create_pipeline_file(source_tool_slug="test-tool", input_file_path=sample_file, mime_type="text/plain")
+    create_pipeline_file(
+        source_tool_slug="test-tool",
+        input_file_path=sample_file,
+        mime_type="text/plain",
+    )
 
     # Original file should still exist
     original_exists_after = os.path.exists(sample_file)

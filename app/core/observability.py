@@ -116,7 +116,11 @@ def log_tool_call(
         logger.info("tool_call", status="success", **log_data)
     else:
         _stats["errors"][tool_slug] += 1
-        _stats["last_error"][tool_slug] = {"tool": tool_slug, "status": status, **log_data}
+        _stats["last_error"][tool_slug] = {
+            "tool": tool_slug,
+            "status": status,
+            **log_data,
+        }
         logger.error("tool_call", status="error", **log_data)
 
 
@@ -185,14 +189,18 @@ def get_stats() -> Dict[str, Any]:
     total_rate_limits = sum(_stats["rate_limit_events"].values())
 
     # Calculate top 3 tools
-    top_tools = sorted(_stats["tool_calls"].items(), key=lambda x: x[1], reverse=True)[:3]
+    top_tools = sorted(_stats["tool_calls"].items(), key=lambda x: x[1], reverse=True)[
+        :3
+    ]
 
     return {
         "total_calls": total_calls,
         "total_errors": total_errors,
         "total_cache_hits": total_cache_hits,
         "total_rate_limits": total_rate_limits,
-        "error_rate": round(total_errors / total_calls * 100, 2) if total_calls > 0 else 0,
+        "error_rate": (
+            round(total_errors / total_calls * 100, 2) if total_calls > 0 else 0
+        ),
         "top_tools": [{"slug": slug, "calls": count} for slug, count in top_tools],
         "by_tool": {
             tool_slug: {
@@ -201,12 +209,15 @@ def get_stats() -> Dict[str, Any]:
                 "errors": _stats["errors"][tool_slug],
                 "cache_hits": _stats["cache_hits"][tool_slug],
                 "rate_limits": _stats["rate_limit_events"][tool_slug],
-                "avg_duration_ms": round(
-                    _stats["total_duration_ms"][tool_slug] / _stats["tool_calls"][tool_slug],
-                    2,
-                )
-                if _stats["tool_calls"][tool_slug] > 0
-                else 0,
+                "avg_duration_ms": (
+                    round(
+                        _stats["total_duration_ms"][tool_slug]
+                        / _stats["tool_calls"][tool_slug],
+                        2,
+                    )
+                    if _stats["tool_calls"][tool_slug] > 0
+                    else 0
+                ),
                 "last_error": _stats["last_error"].get(tool_slug),
             }
             for tool_slug in _stats["tool_calls"].keys()
@@ -231,7 +242,9 @@ def reset_stats() -> None:
 # --- v0.7.0: Analytics Functions ---
 
 
-def record_page_view(tool_slug: str, user_agent: str | None = None, referer: str | None = None) -> None:
+def record_page_view(
+    tool_slug: str, user_agent: str | None = None, referer: str | None = None
+) -> None:
     """
     Record a tool page view for analytics.
 
@@ -268,7 +281,9 @@ def get_analytics_stats() -> Dict[str, Any]:
     total_page_views = sum(_analytics["page_views"].values())
 
     # Top 10 most viewed tools
-    top_viewed = sorted(_analytics["page_views"].items(), key=lambda x: x[1], reverse=True)[:10]
+    top_viewed = sorted(
+        _analytics["page_views"].items(), key=lambda x: x[1], reverse=True
+    )[:10]
 
     # Top 10 search queries
     query_counter = Counter(_analytics["search_queries"])
@@ -278,8 +293,12 @@ def get_analytics_stats() -> Dict[str, Any]:
         "total_page_views": total_page_views,
         "total_searches": len(_analytics["search_queries"]),
         "unique_searches": len(query_counter),
-        "top_viewed_tools": [{"slug": slug, "views": count} for slug, count in top_viewed],
-        "top_searches": [{"query": query, "count": count} for query, count in top_searches],
+        "top_viewed_tools": [
+            {"slug": slug, "views": count} for slug, count in top_viewed
+        ],
+        "top_searches": [
+            {"query": query, "count": count} for query, count in top_searches
+        ],
         "page_views_by_tool": dict(_analytics["page_views"]),
         # v0.8.0: Flow statistics
         "top_flows": get_flow_stats()["top_flows"],
@@ -318,7 +337,10 @@ def get_flow_stats() -> Dict[str, Any]:
     top_flows = flow_counter.most_common(10)
 
     return {
-        "top_flows": [{"from": from_slug, "to": to_slug, "count": count} for (from_slug, to_slug), count in top_flows]
+        "top_flows": [
+            {"from": from_slug, "to": to_slug, "count": count}
+            for (from_slug, to_slug), count in top_flows
+        ]
     }
 
 

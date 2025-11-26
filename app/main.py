@@ -117,7 +117,9 @@ async def home(request: Request):
     """Dashboard showing all registered tools."""
     tools = ToolRegistry.get_tools()
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"tools": tools, "settings": settings}
+        request=request,
+        name="index.html",
+        context={"tools": tools, "settings": settings},
     )
 
 
@@ -134,7 +136,9 @@ async def admin_stats(request: Request):
     analytics = get_analytics_stats()  # v0.7.0
 
     return templates.TemplateResponse(
-        request=request, name="admin/stats.html", context={"stats": stats, "analytics": analytics}
+        request=request,
+        name="admin/stats.html",
+        context={"stats": stats, "analytics": analytics},
     )
 
 

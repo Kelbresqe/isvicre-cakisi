@@ -97,7 +97,9 @@ async def convert_base(
             return templates.TemplateResponse(
                 request=request,
                 name="partials/error.html",
-                context={"error": f"Girdiğiniz değer {from_base} tabanına uygun değil."},
+                context={
+                    "error": f"Girdiğiniz değer {from_base} tabanına uygun değil."
+                },
             )
 
         # Convert to all bases
@@ -105,11 +107,16 @@ async def convert_base(
             "binary": bin(decimal_value)[2:],  # Remove '0b' prefix
             "octal": oct(decimal_value)[2:],  # Remove '0o' prefix
             "decimal": str(decimal_value),
-            "hexadecimal": hex(decimal_value)[2:].upper(),  # Remove '0x' prefix and uppercase
+            "hexadecimal": hex(decimal_value)[
+                2:
+            ].upper(),  # Remove '0x' prefix and uppercase
         }
 
         log_tool_call(
-            "base-converter", "success", (time.time() - start) * 1000, {"from_base": from_base, "value": value}
+            "base-converter",
+            "success",
+            (time.time() - start) * 1000,
+            {"from_base": from_base, "value": value},
         )
 
         return templates.TemplateResponse(
@@ -123,7 +130,9 @@ async def convert_base(
         )
 
     except Exception as e:
-        log_tool_call("base-converter", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "base-converter", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",

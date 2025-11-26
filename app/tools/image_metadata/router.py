@@ -75,7 +75,10 @@ Metadata temizleme işlemi orijinal görüntü kalitesini korur, sadece gizli bi
             description="Temizlediğiniz görseli yeniden boyutlandırın",
         ),
         ToolRelation(
-            slug="image-converter", relation_type="next", label="Format Dönüştür", description="Farklı formata çevirin"
+            slug="image-converter",
+            relation_type="next",
+            label="Format Dönüştür",
+            description="Farklı formata çevirin",
         ),
     ],
 )
@@ -88,7 +91,11 @@ async def page(request: Request, pipeline_id: str | None = None):
     """Metadata inspector page"""
     from app.core.observability import record_page_view
 
-    record_page_view("image-metadata", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "image-metadata",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
     # v0.8.0: Pipeline consumption
     pipeline_file = None
@@ -100,7 +107,9 @@ async def page(request: Request, pipeline_id: str | None = None):
             pipeline_file = None
 
     return templates.TemplateResponse(
-        request=request, name="metadata.html", context={"tool": tool_info, "pipeline_file": pipeline_file}
+        request=request,
+        name="metadata.html",
+        context={"tool": tool_info, "pipeline_file": pipeline_file},
     )
 
 
@@ -156,7 +165,13 @@ async def inspect_metadata(
                             value = value.decode("utf-8", errors="ignore")
                         except Exception:
                             value = str(value)
-                    metadata_items.append({"category": "EXIF", "name": tag_name, "value": str(value)[:100]})
+                    metadata_items.append(
+                        {
+                            "category": "EXIF",
+                            "name": tag_name,
+                            "value": str(value)[:100],
+                        }
+                    )
         except Exception:
             pass  # No EXIF data
 
@@ -192,7 +207,9 @@ async def inspect_metadata(
     except Exception as e:
         duration = (time.time() - start_time) * 1000
         log_tool_call("image-metadata", "error", duration, {"error": str(e)})
-        return HTMLResponse(content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400)
+        return HTMLResponse(
+            content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400
+        )
 
 
 @router.post("/clean", response_class=HTMLResponse)
@@ -214,7 +231,9 @@ async def clean_metadata(
         img_clean.putdata(list(img.getdata()))
 
         # Save
-        output_filename = f"clean_{uuid.uuid4().hex[:8]}{os.path.splitext(file_path)[1]}"
+        output_filename = (
+            f"clean_{uuid.uuid4().hex[:8]}{os.path.splitext(file_path)[1]}"
+        )
         output_path = settings.TEMP_DIR / output_filename
         img_clean.save(output_path, format=img.format or "PNG")
 
@@ -249,7 +268,8 @@ async def clean_metadata(
         # Wait, I can't easily inline if I use TemplateResponse without a template.
         # I'll return HTML string like image-converter does.
 
-        return HTMLResponse(f"""
+        return HTMLResponse(
+            f"""
         <div class="bg-emerald-500/10 border border-emerald-500/50 rounded-xl p-6 animate-fade-in">
             <div class="flex items-start justify-between mb-4">
                 <div class="flex items-center gap-3">
@@ -291,12 +311,15 @@ async def clean_metadata(
         }
             </div>
         </div>
-        """)
+        """
+        )
 
     except Exception as e:
         duration = (time.time() - start_time) * 1000
         log_tool_call("image-metadata", "error", duration, {"error": str(e)})
-        return HTMLResponse(content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400)
+        return HTMLResponse(
+            content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400
+        )
 
 
 @router.get("/download/{filename}")
@@ -311,4 +334,6 @@ async def download(filename: str, background_tasks: BackgroundTasks):
     # Dosyayı gönderdikten sonra sil
     background_tasks.add_task(os.remove, file_path)
 
-    return FileResponse(path=file_path, filename=filename, media_type="application/octet-stream")
+    return FileResponse(
+        path=file_path, filename=filename, media_type="application/octet-stream"
+    )

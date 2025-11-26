@@ -29,9 +29,21 @@ templates = get_tool_templates(__file__)
 
 # Supported algorithms
 ALGORITHMS = {
-    "md5": {"name": "MD5", "bits": 128, "description": "Hızlı ama güvenli değil (eski sistemler için)"},
-    "sha1": {"name": "SHA-1", "bits": 160, "description": "Artık güvenli değil (eski uyumluluk için)"},
-    "sha256": {"name": "SHA-256", "bits": 256, "description": "Standart güvenlik (önerilen)"},
+    "md5": {
+        "name": "MD5",
+        "bits": 128,
+        "description": "Hızlı ama güvenli değil (eski sistemler için)",
+    },
+    "sha1": {
+        "name": "SHA-1",
+        "bits": 160,
+        "description": "Artık güvenli değil (eski uyumluluk için)",
+    },
+    "sha256": {
+        "name": "SHA-256",
+        "bits": 256,
+        "description": "Standart güvenlik (önerilen)",
+    },
     "sha512": {"name": "SHA-512", "bits": 512, "description": "Yüksek güvenlik"},
     "blake2b": {"name": "BLAKE2b", "bits": 512, "description": "Modern ve hızlı"},
 }
@@ -149,7 +161,10 @@ async def hash_text(
             hashes = {algorithm: calculate_hash(data, algorithm)}
 
         log_tool_call(
-            "hash-generator", "success", (time.time() - start) * 1000, {"source": "text", "algorithm": algorithm}
+            "hash-generator",
+            "success",
+            (time.time() - start) * 1000,
+            {"source": "text", "algorithm": algorithm},
         )
 
         return templates.TemplateResponse(
@@ -164,7 +179,9 @@ async def hash_text(
         )
 
     except Exception as e:
-        log_tool_call("hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",
@@ -186,12 +203,16 @@ async def hash_file(
         contents = await file.read()
 
         # Check size
-        max_size = (tool_info.max_upload_mb or settings.MAX_UPLOAD_SIZE_MB) * 1024 * 1024
+        max_size = (
+            (tool_info.max_upload_mb or settings.MAX_UPLOAD_SIZE_MB) * 1024 * 1024
+        )
         if len(contents) > max_size:
             return templates.TemplateResponse(
                 request=request,
                 name="partials/error.html",
-                context={"error": f"Dosya çok büyük. Maksimum: {tool_info.max_upload_mb} MB"},
+                context={
+                    "error": f"Dosya çok büyük. Maksimum: {tool_info.max_upload_mb} MB"
+                },
             )
 
         if algorithm == "all":
@@ -225,7 +246,9 @@ async def hash_file(
         )
 
     except Exception as e:
-        log_tool_call("hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",
@@ -248,7 +271,12 @@ async def compare_hash(
 
         match = hash1 == hash2
 
-        log_tool_call("hash-generator", "success", (time.time() - start) * 1000, {"action": "compare", "match": match})
+        log_tool_call(
+            "hash-generator",
+            "success",
+            (time.time() - start) * 1000,
+            {"action": "compare", "match": match},
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -261,7 +289,9 @@ async def compare_hash(
         )
 
     except Exception as e:
-        log_tool_call("hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "hash-generator", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",

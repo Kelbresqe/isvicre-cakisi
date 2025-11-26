@@ -132,7 +132,12 @@ class RateLimiter:
             if redis_count >= settings.MAX_REQUESTS_PER_MINUTE:
                 log_security_event(
                     "rate_limit_exceeded",
-                    {"ip": ip, "limit": settings.MAX_REQUESTS_PER_MINUTE, "type": "requests", "source": "redis"},
+                    {
+                        "ip": ip,
+                        "limit": settings.MAX_REQUESTS_PER_MINUTE,
+                        "type": "requests",
+                        "source": "redis",
+                    },
                 )
                 raise HTTPException(
                     status_code=429,
@@ -152,7 +157,12 @@ class RateLimiter:
         if len(request_times) >= settings.MAX_REQUESTS_PER_MINUTE:
             log_security_event(
                 "rate_limit_exceeded",
-                {"ip": ip, "limit": settings.MAX_REQUESTS_PER_MINUTE, "type": "requests", "source": "memory"},
+                {
+                    "ip": ip,
+                    "limit": settings.MAX_REQUESTS_PER_MINUTE,
+                    "type": "requests",
+                    "source": "memory",
+                },
             )
             raise HTTPException(
                 status_code=429,

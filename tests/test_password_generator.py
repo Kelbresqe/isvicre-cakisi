@@ -18,7 +18,13 @@ def test_password_generation_default(client: TestClient):
 
 
 def test_password_generation_custom(client: TestClient):
-    data = {"length": 32, "use_uppercase": True, "use_lowercase": True, "use_numbers": True, "use_symbols": True}
+    data = {
+        "length": 32,
+        "use_uppercase": True,
+        "use_lowercase": True,
+        "use_numbers": True,
+        "use_symbols": True,
+    }
     response = client.post("/tools/password-generator/generate", data=data)
     assert response.status_code == 200
     assert "Çok Güçlü" in response.text

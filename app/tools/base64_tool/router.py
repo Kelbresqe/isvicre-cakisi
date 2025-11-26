@@ -10,7 +10,11 @@ from app.core.rate_limit import rate_limit_dependency
 from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
-router = APIRouter(prefix="/tools/base64", tags=["Base64 Tool"], dependencies=[Depends(rate_limit_dependency)])
+router = APIRouter(
+    prefix="/tools/base64",
+    tags=["Base64 Tool"],
+    dependencies=[Depends(rate_limit_dependency)],
+)
 
 templates = get_tool_templates(__file__)
 
@@ -76,9 +80,13 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("base64", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "base64", request.headers.get("user-agent"), request.headers.get("referer")
+    )
 
-    return templates.TemplateResponse(request=request, name="base64.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="base64.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/convert", response_class=HTMLResponse)
@@ -116,7 +124,9 @@ async def convert_base64(
         set_cached_result("base64", text_input, result, action=action)
 
         duration = (time.time() - start_time) * 1000
-        log_tool_call("base64", "success", duration, {"action": action, "size": len(text_input)})
+        log_tool_call(
+            "base64", "success", duration, {"action": action, "size": len(text_input)}
+        )
 
         return f"""
         <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden animate-fade-in">

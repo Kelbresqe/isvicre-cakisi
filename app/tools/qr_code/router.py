@@ -79,9 +79,13 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("qr-code", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "qr-code", request.headers.get("user-agent"), request.headers.get("referer")
+    )
 
-    return templates.TemplateResponse(request=request, name="qr_code.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="qr_code.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/generate", response_class=HTMLResponse)
@@ -106,7 +110,9 @@ async def generate_qr(
 
         qr = qrcode.QRCode(
             version=None,  # Auto-detect
-            error_correction=ec_map.get(error_correction, qrcode.constants.ERROR_CORRECT_M),
+            error_correction=ec_map.get(
+                error_correction, qrcode.constants.ERROR_CORRECT_M
+            ),
             box_size=max(1, min(size, 20)),  # Limit size
             border=max(0, min(border, 10)),
         )

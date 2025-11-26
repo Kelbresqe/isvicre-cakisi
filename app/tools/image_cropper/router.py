@@ -12,7 +12,11 @@ from app.core.rate_limit import rate_limit_dependency
 from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
-router = APIRouter(prefix="/tools/image-cropper", tags=["Image Cropper"], dependencies=[Depends(rate_limit_dependency)])
+router = APIRouter(
+    prefix="/tools/image-cropper",
+    tags=["Image Cropper"],
+    dependencies=[Depends(rate_limit_dependency)],
+)
 
 templates = get_tool_templates(__file__)
 
@@ -28,7 +32,10 @@ tool_info = ToolInfo(
     seo_description="Resimlerinizi istediğiniz boyutlara kırpın. Manuel koordinat girişi ile hassas kırpma.",
     keywords="resim kırpma, image crop, görsel kesme",
     long_description="Basit ve etkili resim kırpma aracı. Koordinatları manuel girerek görseli istediğiniz alana kırpın.",
-    use_cases=["Profil fotoğrafı için kare kırpma", "Banner için belirli boyuta getirme"],
+    use_cases=[
+        "Profil fotoğrafı için kare kırpma",
+        "Banner için belirli boyuta getirme",
+    ],
     faq=[
         {
             "question": "Koordinat sistemi nasıl?",
@@ -56,7 +63,11 @@ ToolRegistry.register(tool_info, router)
 async def page(request: Request, pipeline_id: str | None = None):
     from app.core.observability import record_page_view
 
-    record_page_view("image-cropper", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "image-cropper",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
     pipeline_file = None
     if pipeline_id:
@@ -67,7 +78,9 @@ async def page(request: Request, pipeline_id: str | None = None):
             pipeline_file = None
 
     return templates.TemplateResponse(
-        request=request, name="cropper.html", context={"tool": tool_info, "pipeline_file": pipeline_file}
+        request=request,
+        name="cropper.html",
+        context={"tool": tool_info, "pipeline_file": pipeline_file},
     )
 
 
@@ -103,7 +116,10 @@ async def crop(
 
         img = Image.open(file_path)
         cropped = img.crop((x, y, x + width, y + height))
-        output = settings.TEMP_DIR / f"cropped_{uuid.uuid4().hex[:8]}.{img.format.lower() if img.format else 'png'}"
+        output = (
+            settings.TEMP_DIR
+            / f"cropped_{uuid.uuid4().hex[:8]}.{img.format.lower() if img.format else 'png'}"
+        )
         cropped.save(output, format=img.format or "PNG")
 
         # Pipeline production
@@ -112,15 +128,22 @@ async def crop(
 
             try:
                 create_pipeline_file(
-                    "image-cropper", str(output), f"image/{(img.format or 'png').lower()}", output.name
+                    "image-cropper",
+                    str(output),
+                    f"image/{(img.format or 'png').lower()}",
+                    output.name,
                 )
             except Exception:
                 pass
 
         log_tool_call("image-cropper", "success", (time.time() - start) * 1000, {})
         return FileResponse(
-            path=output, filename=output.name, media_type=f"image/{img.format.lower() if img.format else 'png'}"
+            path=output,
+            filename=output.name,
+            media_type=f"image/{img.format.lower() if img.format else 'png'}",
         )
     except Exception as e:
-        log_tool_call("image-cropper", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "image-cropper", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         raise

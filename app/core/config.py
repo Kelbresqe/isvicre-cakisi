@@ -33,33 +33,60 @@ class Settings(BaseSettings):
 
     # Directories
     BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent
-    TEMP_DIR: Path = Field(default_factory=lambda: Path(__file__).resolve().parent.parent.parent / "temp")
+    TEMP_DIR: Path = Field(
+        default_factory=lambda: Path(__file__).resolve().parent.parent.parent / "temp"
+    )
 
     # Redis Configuration (v1.0.0)
-    REDIS_URL: str = Field(default="redis://localhost:6380/0", description="Redis connection URL")
-    REDIS_ENABLED: bool = Field(default=True, description="Enable Redis for caching and rate limiting")
-    REDIS_KEY_PREFIX: str = Field(default="isvicre:", description="Redis key prefix for namespacing")
-    REDIS_TTL_SECONDS: int = Field(default=3600, description="Default TTL for Redis keys in seconds")
+    REDIS_URL: str = Field(
+        default="redis://localhost:6380/0", description="Redis connection URL"
+    )
+    REDIS_ENABLED: bool = Field(
+        default=True, description="Enable Redis for caching and rate limiting"
+    )
+    REDIS_KEY_PREFIX: str = Field(
+        default="isvicre:", description="Redis key prefix for namespacing"
+    )
+    REDIS_TTL_SECONDS: int = Field(
+        default=3600, description="Default TTL for Redis keys in seconds"
+    )
 
     # Security & Limits
-    MAX_IMAGE_SIZE_MB: int = Field(default=10, description="Maximum image upload size in MB")
-    MAX_PDF_SIZE_MB: int = Field(default=25, description="Maximum PDF upload size in MB")
-    MAX_UPLOAD_SIZE_MB: int = Field(default=50, description="Default maximum upload size in MB for general files")
-    MAX_TEXT_INPUT_MB: int = Field(default=1, description="Maximum text input size in MB for dev tools")
+    MAX_IMAGE_SIZE_MB: int = Field(
+        default=10, description="Maximum image upload size in MB"
+    )
+    MAX_PDF_SIZE_MB: int = Field(
+        default=25, description="Maximum PDF upload size in MB"
+    )
+    MAX_UPLOAD_SIZE_MB: int = Field(
+        default=50, description="Default maximum upload size in MB for general files"
+    )
+    MAX_TEXT_INPUT_MB: int = Field(
+        default=1, description="Maximum text input size in MB for dev tools"
+    )
 
     # Rate Limiting (Phase 5)
-    MAX_REQUESTS_PER_MINUTE: int = Field(default=60, description="Max requests per IP per minute")
-    MAX_UPLOAD_MB_PER_HOUR: int = Field(default=100, description="Max upload MB per IP per hour")
+    MAX_REQUESTS_PER_MINUTE: int = Field(
+        default=60, description="Max requests per IP per minute"
+    )
+    MAX_UPLOAD_MB_PER_HOUR: int = Field(
+        default=100, description="Max upload MB per IP per hour"
+    )
 
     # SEO & Content (v0.7.0)
     SITE_NAME: str = Field(default="İsviçre Çakısı", description="Site name for SEO")
-    SITE_TAGLINE: str = Field(default="Günlük Dijital İşler İçin Hepsi Bir Arada Araçlar", description="Site tagline")
+    SITE_TAGLINE: str = Field(
+        default="Günlük Dijital İşler İçin Hepsi Bir Arada Araçlar",
+        description="Site tagline",
+    )
     DEFAULT_SEO_DESCRIPTION: str = Field(
         default="İsviçre Çakısı ile resim dönüştürme, PDF birleştirme, JSON formatlama ve daha fazlası. "
         "Ücretsiz, hızlı ve kullanımı kolay web araçları.",
         description="Default meta description for pages without specific SEO content",
     )
-    TEXT_TOOL_CACHE_SIZE: int = Field(default=100, description="LRU cache size for text-based tools")
+    TEXT_TOOL_CACHE_SIZE: int = Field(
+        default=100, description="LRU cache size for text-based tools"
+    )
 
     # CORS & Trusted Hosts
     TRUSTED_HOSTS: list[str] = Field(

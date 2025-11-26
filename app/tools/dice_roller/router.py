@@ -92,7 +92,9 @@ DICE_TYPES = {
 }
 
 # Dice notation regex: 2d6+3, 1d20-2, 4d6kh3, etc.
-DICE_NOTATION_PATTERN = re.compile(r"^(\d+)?d(\d+)(?:kh(\d+)|kl(\d+))?([+-]\d+)?$", re.IGNORECASE)
+DICE_NOTATION_PATTERN = re.compile(
+    r"^(\d+)?d(\d+)(?:kh(\d+)|kl(\d+))?([+-]\d+)?$", re.IGNORECASE
+)
 
 
 def parse_dice_notation(notation: str) -> dict | None:
@@ -134,7 +136,11 @@ def parse_dice_notation(notation: str) -> dict | None:
 
 
 def roll_dice(
-    count: int, sides: int, keep_highest: int | None = None, keep_lowest: int | None = None, modifier: int = 0
+    count: int,
+    sides: int,
+    keep_highest: int | None = None,
+    keep_lowest: int | None = None,
+    modifier: int = 0,
 ) -> dict:
     """
     Roll dice and return detailed results.
@@ -217,7 +223,12 @@ async def roll(
         if notation and notation.strip():
             parsed = parse_dice_notation(notation.strip())
             if not parsed:
-                log_tool_call("dice-roller", "error", (time.time() - start) * 1000, {"error": "invalid_notation"})
+                log_tool_call(
+                    "dice-roller",
+                    "error",
+                    (time.time() - start) * 1000,
+                    {"error": "invalid_notation"},
+                )
                 return templates.TemplateResponse(
                     request=request,
                     name="partials/error.html",
@@ -235,7 +246,12 @@ async def roll(
         else:
             # Use individual fields
             if dice_type not in DICE_TYPES:
-                log_tool_call("dice-roller", "error", (time.time() - start) * 1000, {"error": "invalid_dice_type"})
+                log_tool_call(
+                    "dice-roller",
+                    "error",
+                    (time.time() - start) * 1000,
+                    {"error": "invalid_dice_type"},
+                )
                 return templates.TemplateResponse(
                     request=request,
                     name="partials/error.html",
@@ -255,7 +271,12 @@ async def roll(
             elif modifier < 0:
                 notation_used += str(modifier)
 
-        log_tool_call("dice-roller", "success", (time.time() - start) * 1000, {"notation": notation_used})
+        log_tool_call(
+            "dice-roller",
+            "success",
+            (time.time() - start) * 1000,
+            {"notation": notation_used},
+        )
 
         return templates.TemplateResponse(
             request=request,
@@ -267,7 +288,9 @@ async def roll(
         )
 
     except Exception as e:
-        log_tool_call("dice-roller", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "dice-roller", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         return templates.TemplateResponse(
             request=request,
             name="partials/error.html",

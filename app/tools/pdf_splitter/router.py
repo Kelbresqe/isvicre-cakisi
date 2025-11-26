@@ -12,7 +12,11 @@ from app.core.rate_limit import rate_limit_dependency
 from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
-router = APIRouter(prefix="/tools/pdf-splitter", tags=["PDF Splitter"], dependencies=[Depends(rate_limit_dependency)])
+router = APIRouter(
+    prefix="/tools/pdf-splitter",
+    tags=["PDF Splitter"],
+    dependencies=[Depends(rate_limit_dependency)],
+)
 
 templates = get_tool_templates(__file__)
 
@@ -29,7 +33,12 @@ tool_info = ToolInfo(
     keywords="pdf ayırıcı, pdf splitter, pdf sayfa seçici",
     long_description="PDF dosyalarınızdan belirli sayfaları seçerek yeni PDF oluşturun. Sayfa aralıkları (1-5,7,9-12) formatında belirtin.",
     use_cases=["Büyük PDF'den sadece gerekli sayfaları ayırma", "Bölümlere ayırma"],
-    faq=[{"question": "Sayfa formatı nasıl?", "answer": "1-5,7,9-12 formatında virgülle ayırın. Aralıklar tire ile."}],
+    faq=[
+        {
+            "question": "Sayfa formatı nasıl?",
+            "answer": "1-5,7,9-12 formatında virgülle ayırın. Aralıklar tire ile.",
+        }
+    ],
     accepts_files=True,
     max_upload_mb=50,
     accepts_pipeline_files=True,
@@ -64,7 +73,11 @@ def parse_pages(page_str: str, max_pages: int) -> list[int]:
 async def page(request: Request, pipeline_id: str | None = None):
     from app.core.observability import record_page_view
 
-    record_page_view("pdf-splitter", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "pdf-splitter",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
     pipeline_file = None
     if pipeline_id:
@@ -75,13 +88,18 @@ async def page(request: Request, pipeline_id: str | None = None):
             pipeline_file = None
 
     return templates.TemplateResponse(
-        request=request, name="splitter.html", context={"tool": tool_info, "pipeline_file": pipeline_file}
+        request=request,
+        name="splitter.html",
+        context={"tool": tool_info, "pipeline_file": pipeline_file},
     )
 
 
 @router.post("/split", response_class=FileResponse)
 async def split(
-    request: Request, file: UploadFile | None = None, pipeline_id: str | None = None, pages: str = Form(...)
+    request: Request,
+    file: UploadFile | None = None,
+    pipeline_id: str | None = None,
+    pages: str = Form(...),
 ):
     from app.core.observability import log_tool_call
 
@@ -121,12 +139,23 @@ async def split(
             from app.core.pipeline import create_pipeline_file
 
             try:
-                create_pipeline_file("pdf-splitter", str(output), "application/pdf", output.name)
+                create_pipeline_file(
+                    "pdf-splitter", str(output), "application/pdf", output.name
+                )
             except Exception:
                 pass
 
-        log_tool_call("pdf-splitter", "success", (time.time() - start) * 1000, {"pages": len(selected)})
-        return FileResponse(path=output, filename=output.name, media_type="application/pdf")
+        log_tool_call(
+            "pdf-splitter",
+            "success",
+            (time.time() - start) * 1000,
+            {"pages": len(selected)},
+        )
+        return FileResponse(
+            path=output, filename=output.name, media_type="application/pdf"
+        )
     except Exception as e:
-        log_tool_call("pdf-splitter", "error", (time.time() - start) * 1000, {"error": str(e)})
+        log_tool_call(
+            "pdf-splitter", "error", (time.time() - start) * 1000, {"error": str(e)}
+        )
         raise

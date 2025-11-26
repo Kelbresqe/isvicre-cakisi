@@ -61,7 +61,11 @@ def _is_expired(metadata: PipelineFile) -> bool:
 
 
 def create_pipeline_file(
-    source_tool_slug: str, input_file_path: str, mime_type: str, ttl_seconds: int = 600, original_name: str = ""
+    source_tool_slug: str,
+    input_file_path: str,
+    mime_type: str,
+    ttl_seconds: int = 600,
+    original_name: str = "",
 ) -> str:
     """
     Create a pipeline file for inter-tool transfer.

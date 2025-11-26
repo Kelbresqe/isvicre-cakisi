@@ -45,7 +45,9 @@ class InvalidPDFError(InvalidFileError):
     pass
 
 
-async def validate_file(file: UploadFile, max_size_mb: int, allowed_mimes: set[str]) -> bytes:
+async def validate_file(
+    file: UploadFile, max_size_mb: int, allowed_mimes: set[str]
+) -> bytes:
     """
     Validates file size and MIME type.
     Returns the file content as bytes.
@@ -82,7 +84,9 @@ async def validate_and_load_image(file: UploadFile) -> tuple[Image.Image, str, i
     Validates and loads an image using Pillow.
     Returns (Image object, filename, original_size).
     """
-    content = await validate_file(file, settings.MAX_IMAGE_SIZE_MB, settings.ALLOWED_IMAGE_MIME_TYPES)
+    content = await validate_file(
+        file, settings.MAX_IMAGE_SIZE_MB, settings.ALLOWED_IMAGE_MIME_TYPES
+    )
 
     try:
         img = Image.open(BytesIO(content))
@@ -99,7 +103,9 @@ async def validate_pdf(file: UploadFile) -> bytes:
     Validates a PDF file.
     Returns file content as bytes.
     """
-    content = await validate_file(file, settings.MAX_PDF_SIZE_MB, settings.ALLOWED_PDF_MIME_TYPES)
+    content = await validate_file(
+        file, settings.MAX_PDF_SIZE_MB, settings.ALLOWED_PDF_MIME_TYPES
+    )
 
     # Additional PDF validation
     try:

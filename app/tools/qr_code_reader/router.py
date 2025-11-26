@@ -89,7 +89,11 @@ async def page(request: Request, pipeline_id: str | None = None):
     """QR Code Reader page"""
     from app.core.observability import record_page_view
 
-    record_page_view("qr-code-reader", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "qr-code-reader",
+        request.headers.get("user-agent"),
+        request.headers.get("referer"),
+    )
 
     # Pipeline consumption
     pipeline_file = None
@@ -101,7 +105,9 @@ async def page(request: Request, pipeline_id: str | None = None):
             pipeline_file = None
 
     return templates.TemplateResponse(
-        request=request, name="reader.html", context={"tool": tool_info, "pipeline_file": pipeline_file}
+        request=request,
+        name="reader.html",
+        context={"tool": tool_info, "pipeline_file": pipeline_file},
     )
 
 
@@ -183,4 +189,6 @@ async def read_qr(
     except Exception as e:
         duration = (time.time() - start_time) * 1000
         log_tool_call("qr-code-reader", "error", duration, {"error": str(e)})
-        return HTMLResponse(content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400)
+        return HTMLResponse(
+            content=f'<div class="text-red-500">Hata: {str(e)}</div>', status_code=400
+        )

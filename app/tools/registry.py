@@ -52,7 +52,9 @@ class ToolInfo:
     # Tool capabilities and limits (v0.5.0)
     accepts_files: bool = False  # Whether tool accepts file uploads
     accepts_text: bool = False  # Whether tool accepts text input
-    max_upload_mb: int | None = None  # Maximum upload size in MB (None = use global default)
+    max_upload_mb: int | None = (
+        None  # Maximum upload size in MB (None = use global default)
+    )
 
     # v0.8.0: Tool Graph & Pipeline capabilities
     suggested_next: list[ToolRelation] = None  # Next logical tools in workflow

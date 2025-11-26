@@ -159,7 +159,12 @@ class TestHealthWithRedis:
         status = get_health_status()
 
         assert "redis" in status.checks
-        assert status.checks["redis"]["status"] in ["ok", "disabled", "unavailable", "error"]
+        assert status.checks["redis"]["status"] in [
+            "ok",
+            "disabled",
+            "unavailable",
+            "error",
+        ]
 
     def test_is_ready_mentions_redis(self):
         """Test that readiness check mentions Redis status."""

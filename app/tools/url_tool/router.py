@@ -10,7 +10,11 @@ from app.core.rate_limit import rate_limit_dependency
 from app.core.utils import get_tool_templates
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
-router = APIRouter(prefix="/tools/url-encoder", tags=["URL Tool"], dependencies=[Depends(rate_limit_dependency)])
+router = APIRouter(
+    prefix="/tools/url-encoder",
+    tags=["URL Tool"],
+    dependencies=[Depends(rate_limit_dependency)],
+)
 
 templates = get_tool_templates(__file__)
 
@@ -76,9 +80,13 @@ async def page(request: Request):
     # v0.7.0: Analytics tracking
     from app.core.observability import record_page_view
 
-    record_page_view("url-encoder", request.headers.get("user-agent"), request.headers.get("referer"))
+    record_page_view(
+        "url-encoder", request.headers.get("user-agent"), request.headers.get("referer")
+    )
 
-    return templates.TemplateResponse(request=request, name="url_tool.html", context={"tool": tool_info})
+    return templates.TemplateResponse(
+        request=request, name="url_tool.html", context={"tool": tool_info}
+    )
 
 
 @router.post("/convert", response_class=HTMLResponse)
@@ -98,7 +106,9 @@ async def convert_url(
         # Check cache
         cached = get_cached_result("url-encoder", text_input, action=action)
         if cached:
-            log_tool_call("url-encoder", "success", 0, {"action": action, "cached": True})
+            log_tool_call(
+                "url-encoder", "success", 0, {"action": action, "cached": True}
+            )
             return f"""
             <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden animate-fade-in">
                 <div class="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700">
@@ -131,7 +141,14 @@ async def convert_url(
                 encoded_fragment = urllib.parse.quote(parsed.fragment, safe="")
 
                 result = urllib.parse.urlunparse(
-                    (parsed.scheme, parsed.netloc, encoded_path, parsed.params, encoded_query, encoded_fragment)
+                    (
+                        parsed.scheme,
+                        parsed.netloc,
+                        encoded_path,
+                        parsed.params,
+                        encoded_query,
+                        encoded_fragment,
+                    )
                 )
             else:
                 # Just a fragment or text - encode everything except URL-safe chars
@@ -146,7 +163,14 @@ async def convert_url(
                 decoded_fragment = urllib.parse.unquote(parsed.fragment)
 
                 result = urllib.parse.urlunparse(
-                    (parsed.scheme, parsed.netloc, decoded_path, parsed.params, decoded_query, decoded_fragment)
+                    (
+                        parsed.scheme,
+                        parsed.netloc,
+                        decoded_path,
+                        parsed.params,
+                        decoded_query,
+                        decoded_fragment,
+                    )
                 )
             else:
                 # Just a fragment - decode everything
@@ -156,7 +180,12 @@ async def convert_url(
         set_cached_result("url-encoder", text_input, result, action=action)
 
         duration = (time.time() - start_time) * 1000
-        log_tool_call("url-encoder", "success", duration, {"action": action, "size": len(text_input)})
+        log_tool_call(
+            "url-encoder",
+            "success",
+            duration,
+            {"action": action, "size": len(text_input)},
+        )
 
         return f"""
         <div class="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden animate-fade-in">

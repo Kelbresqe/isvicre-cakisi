@@ -84,7 +84,9 @@ def test_top_viewed_tools_limit():
 
 def test_analytics_with_user_agent_and_referer():
     """Test page view with optional parameters"""
-    record_page_view("test-tool", user_agent="Mozilla/5.0", referer="https://google.com")
+    record_page_view(
+        "test-tool", user_agent="Mozilla/5.0", referer="https://google.com"
+    )
 
     stats = get_analytics_stats()
     assert stats["total_page_views"] == 1
