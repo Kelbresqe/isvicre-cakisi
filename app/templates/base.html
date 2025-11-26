@@ -103,6 +103,8 @@
     x-data="{ 
         darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches),
         showShortcuts: false,
+        toasts: [],
+        toastId: 0,
         toggleTheme() {
             this.darkMode = !this.darkMode;
             localStorage.setItem('theme', this.darkMode ? 'dark' : 'light');
@@ -111,6 +113,25 @@
             } else {
                 document.documentElement.classList.remove('dark');
             }
+            this.showToast(this.darkMode ? '🌙 Koyu tema aktif' : '☀️ Açık tema aktif', 'info');
+        },
+        showToast(message, type = 'success', duration = 3000) {
+            const id = ++this.toastId;
+            this.toasts.push({ id, message, type, visible: true });
+            setTimeout(() => {
+                const toast = this.toasts.find(t => t.id === id);
+                if (toast) toast.visible = false;
+                setTimeout(() => {
+                    this.toasts = this.toasts.filter(t => t.id !== id);
+                }, 300);
+            }, duration);
+        },
+        copyToClipboard(text, label = 'Metin') {
+            navigator.clipboard.writeText(text).then(() => {
+                this.showToast(`✓ ${label} panoya kopyalandı`, 'success');
+            }).catch(() => {
+                this.showToast('✗ Kopyalama başarısız', 'error');
+            });
         },
         handleKeydown(event) {
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
@@ -149,62 +170,71 @@
         x-transition:leave-end="opacity-0"
         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
         @click.self="showShortcuts = false"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcuts-title"
     >
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4" role="document">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-gray-800 dark:text-white">⌨️ Klavye Kısayolları</h3>
-                <button @click="showShortcuts = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <h3 id="shortcuts-title" class="text-lg font-bold text-gray-800 dark:text-white">⌨️ Klavye Kısayolları</h3>
+                <button 
+                    @click="showShortcuts = false" 
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 rounded-lg p-1"
+                    aria-label="Kapat"
+                    type="button"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="space-y-3">
-                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+            <ul class="space-y-3" role="list" aria-label="Kısayol listesi">
+                <li class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
                     <span class="text-gray-700 dark:text-gray-300">Kısayolları Göster</span>
                     <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">?</kbd>
-                </div>
-                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                </li>
+                <li class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
                     <span class="text-gray-700 dark:text-gray-300">Ana Sayfa</span>
                     <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">H</kbd>
-                </div>
-                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                </li>
+                <li class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
                     <span class="text-gray-700 dark:text-gray-300">Tema Değiştir</span>
                     <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">D</kbd>
-                </div>
-                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                </li>
+                <li class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
                     <span class="text-gray-700 dark:text-gray-300">Arama</span>
                     <div class="flex gap-1">
                         <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">/</kbd>
                         <span class="text-gray-400 dark:text-gray-500">veya</span>
                         <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">⌘K</kbd>
                     </div>
-                </div>
-                <div class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
+                </li>
+                <li class="flex justify-between items-center p-2 rounded bg-gray-50 dark:bg-slate-700/50">
                     <span class="text-gray-700 dark:text-gray-300">Kapat</span>
                     <kbd class="px-2 py-1 bg-slate-200 dark:bg-slate-600 rounded text-xs font-mono text-gray-800 dark:text-gray-200">Esc</kbd>
-                </div>
-            </div>
+                </li>
+            </ul>
             <p class="mt-4 text-xs text-center text-gray-400 dark:text-gray-500">
                 Kısayollar sadece input alanları dışında çalışır
             </p>
         </div>
     </div>
 
-    <nav class="p-4 border-b border-gray-200 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300">
+    <nav class="p-4 border-b border-gray-200 dark:border-slate-800/50 bg-white/80 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50 transition-colors duration-300" role="navigation" aria-label="Ana navigasyon">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="/" class="text-xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <span>🇨🇭</span>
+            <a href="/" class="text-xl font-bold text-emerald-600 dark:text-emerald-400 tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 rounded-lg" aria-label="Ana sayfaya git">
+                <span aria-hidden="true">🇨🇭</span>
                 <span>İsviçre Çakısı</span>
             </a>
             
-            <div class="flex items-center gap-2 sm:gap-4">
+            <div class="flex items-center gap-2 sm:gap-4" role="toolbar" aria-label="Araç çubuğu">
                 <!-- Keyboard Shortcuts Button -->
                 <button 
                     @click="showShortcuts = true"
-                    class="hidden sm:flex p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    aria-label="Klavye Kısayolları"
+                    class="hidden sm:flex p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                    aria-label="Klavye kısayollarını göster"
                     title="Klavye Kısayolları (?)"
+                    type="button"
                 >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                     </svg>
                 </button>
@@ -212,26 +242,29 @@
                 <!-- Theme Toggle -->
                 <button 
                     @click="toggleTheme()" 
-                    class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    aria-label="Toggle Dark Mode"
-                    title="Tema Değiştir (D)"
+                    class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
+                    :aria-label="darkMode ? 'Açık temaya geç' : 'Koyu temaya geç'"
+                    :title="darkMode ? 'Açık Tema (D)' : 'Koyu Tema (D)'"
+                    type="button"
+                    aria-pressed="false"
+                    :aria-pressed="darkMode.toString()"
                 >
                     <!-- Sun Icon -->
-                    <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
                     <!-- Moon Icon -->
-                    <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg x-show="darkMode" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                     </svg>
                 </button>
                 
-                <div class="text-xs text-gray-500 dark:text-slate-500 font-mono">v{{ settings.VERSION }}</div>
+                <div class="text-xs text-gray-500 dark:text-slate-500 font-mono" aria-label="Versiyon {{ settings.VERSION }}">v{{ settings.VERSION }}</div>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto p-6" hx-boost="true">
+    <main id="main-content" class="container mx-auto p-6" hx-boost="true" role="main">
         {% block content %}{% endblock %}
     </main>
 
@@ -249,5 +282,39 @@
             });
         }
     </script>
+
+    <!-- Toast Notifications Container -->
+    <div 
+        class="fixed bottom-4 right-4 z-[200] space-y-2 pointer-events-none"
+        aria-live="polite"
+        aria-label="Bildirimler"
+    >
+        <template x-for="toast in toasts" :key="toast.id">
+            <div 
+                x-show="toast.visible"
+                x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                x-transition:leave="transition ease-in duration-200 transform"
+                x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+                :class="{
+                    'bg-emerald-500': toast.type === 'success',
+                    'bg-red-500': toast.type === 'error',
+                    'bg-blue-500': toast.type === 'info',
+                    'bg-amber-500': toast.type === 'warning'
+                }"
+                class="px-4 py-3 rounded-lg text-white shadow-lg flex items-center gap-2 pointer-events-auto min-w-[200px] max-w-sm"
+                role="alert"
+            >
+                <span x-text="toast.message" class="text-sm font-medium"></span>
+            </div>
+        </template>
+    </div>
+
+    <!-- Skip to main content link (Accessibility) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[300] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-lg focus:outline-none">
+        Ana içeriğe geç
+    </a>
 </body>
 </html>

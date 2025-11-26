@@ -14,8 +14,15 @@
     'info': 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800'
 } %}
 
-<div class="flex items-start p-4 rounded-lg border {{ color_map[type] }}">
-    <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+{% set role_map = {
+    'success': 'status',
+    'warning': 'alert',
+    'error': 'alert',
+    'info': 'status'
+} %}
+
+<div class="flex items-start p-4 rounded-lg border {{ color_map[type] }}" role="{{ role_map[type] }}" aria-live="{{ 'assertive' if type in ['error', 'warning'] else 'polite' }}">
+    <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         {{ icon_map[type]|safe }}
     </svg>
     <div class="flex-1">
