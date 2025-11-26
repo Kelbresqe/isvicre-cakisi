@@ -5,6 +5,7 @@ Provides Redis connection with automatic fallback to in-memory storage.
 Uses hiredis for performance optimization.
 """
 
+import time
 from typing import Any
 
 import structlog
@@ -16,20 +17,34 @@ logger = structlog.get_logger("redis")
 # Redis client singleton
 _redis_client: Any = None
 _redis_available: bool = False
+_last_connection_attempt: float = 0
+_CONNECTION_RETRY_INTERVAL: float = 30.0  # Retry every 30 seconds
 
 
 def get_redis_client():
     """
     Get Redis client with lazy initialization.
     Returns None if Redis is not available or disabled.
+    Implements retry logic to handle temporary connection failures.
     """
-    global _redis_client, _redis_available
+    global _redis_client, _redis_available, _last_connection_attempt
 
     if not settings.REDIS_ENABLED:
         return None
 
-    if _redis_client is not None:
-        return _redis_client if _redis_available else None
+    # If we have a working client, return it
+    if _redis_client is not None and _redis_available:
+        return _redis_client
+
+    # If connection failed recently, don't retry immediately
+    current_time = time.time()
+    if (
+        not _redis_available
+        and (current_time - _last_connection_attempt) < _CONNECTION_RETRY_INTERVAL
+    ):
+        return None
+
+    _last_connection_attempt = current_time
 
     try:
         import redis
@@ -37,9 +52,10 @@ def get_redis_client():
         _redis_client = redis.from_url(
             settings.REDIS_URL,
             decode_responses=True,
-            socket_connect_timeout=2,
-            socket_timeout=2,
+            socket_connect_timeout=3,
+            socket_timeout=3,
             retry_on_timeout=True,
+            health_check_interval=30,
         )
         # Test connection
         _redis_client.ping()
@@ -48,7 +64,13 @@ def get_redis_client():
         return _redis_client
     except Exception as e:
         _redis_available = False
-        logger.warning("redis_connection_failed", error=str(e), fallback="in-memory")
+        _redis_client = None
+        logger.warning(
+            "redis_connection_failed",
+            error=str(e),
+            fallback="in-memory",
+            retry_in=f"{_CONNECTION_RETRY_INTERVAL}s",
+        )
         return None
 
 

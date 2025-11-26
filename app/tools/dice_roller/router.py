@@ -34,6 +34,7 @@ tool_info = ToolInfo(
     title="Zar Atıcı",
     category=Category.GAME,
     icon='<svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>',
+    image_url="/static/images/dice_roller.png",
     description="D&D ve masa oyunları için zar atma aracı. D4'ten D100'e tüm zarlar.",
     short_description="D4-D100 zarları, çoklu zar atışı",
     detailed_description="Dungeons & Dragons ve diğer masa oyunları için profesyonel zar atıcı.",

@@ -27,6 +27,18 @@ async def lifespan(app: FastAPI):
         shutil.rmtree(settings.TEMP_DIR)
     settings.TEMP_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Warm up Redis connection at startup
+    try:
+        from app.core.redis_client import get_redis_client
+
+        client = get_redis_client()
+        if client:
+            print("✅ Redis bağlantısı kuruldu")
+        else:
+            print("⚠️ Redis bağlantısı kurulamadı, in-memory cache kullanılacak")
+    except Exception as e:
+        print(f"⚠️ Redis warm-up hatası: {e}")
+
     yield
 
     # Shutdown events (if any)
