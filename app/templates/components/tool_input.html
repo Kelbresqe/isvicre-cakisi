@@ -220,6 +220,10 @@
                       class="block w-full p-4 bg-slate-800 border border-slate-700 rounded-xl text-sm placeholder-slate-500 text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono"></textarea>
         </div>
 
+        {% if extra_form_fields %}
+            {{ extra_form_fields|safe }}
+        {% endif %}
+
         {# Action Button #}
         <div class="mt-6">
             <button 

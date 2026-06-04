@@ -150,7 +150,9 @@ make dev
 # veya: uv run uvicorn app.main:app --reload
 ```
 
-Uygulama `http://localhost:8000` adresinde çalışacaktır.
+Uygulama lokal geliştirmede `http://localhost:8000` veya `http://127.0.0.1:8000` adresinde çalışacaktır. Public erişim `https://caki.golgediyar.com` üzerinden cloudflared tüneli ile aynı OrbStack container'ına yönlenir.
+
+Host-header doğrulaması dev ortamında `localhost`, `127.0.0.1`, IPv6 loopback (`::1` / `[::1]`) ve `caki.golgediyar.com` hostlarını kabul edecek şekilde yapılandırılmıştır. Eğer `Invalid host header` veya benzeri bir hata tekrar görünürse `.env` / compose içindeki `ENV`, `TRUSTED_HOSTS` ve `CORS_ORIGINS` ayarlarını kontrol edin, ardından `docker-compose up -d app` ile servisi yeniden oluşturun.
 
 ### Docker ile Çalıştırma
 

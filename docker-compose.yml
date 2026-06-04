@@ -39,6 +39,8 @@ services:
       - DEBUG=${DEBUG:-true}
       - DOCS_ENABLED=${DOCS_ENABLED:-true}
       - REDOC_ENABLED=${REDOC_ENABLED:-true}
+      - TRUSTED_HOSTS=${TRUSTED_HOSTS:-["localhost","127.0.0.1","testserver","caki.golgediyar.com"]}
+      - CORS_ORIGINS=${CORS_ORIGINS:-["http://localhost:3000","http://localhost:8000","https://caki.golgediyar.com"]}
       - MAX_REQUESTS_PER_MINUTE=${MAX_REQUESTS_PER_MINUTE:-60}
       - MAX_UPLOAD_MB_PER_HOUR=${MAX_UPLOAD_MB_PER_HOUR:-100}
       # Redis configuration

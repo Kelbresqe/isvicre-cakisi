@@ -10,8 +10,11 @@ from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.datastructures import URL, Headers
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.trustedhost import ENFORCE_DOMAIN_WILDCARD
+from starlette.responses import PlainTextResponse, RedirectResponse
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 import app.tools as tools_pkg
 from app.core.config import settings
@@ -19,6 +22,62 @@ from app.core.health import get_health_status, is_ready
 from app.tools.registry import Category, ToolRegistry
 
 settings.validate_production_safety()
+
+
+class IPv6AwareTrustedHostMiddleware:
+    """Trusted host middleware that preserves bracketed IPv6 hosts."""
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        allowed_hosts: list[str] | None = None,
+        www_redirect: bool = True,
+    ) -> None:
+        if allowed_hosts is None:
+            allowed_hosts = ["*"]
+
+        for pattern in allowed_hosts:
+            assert "*" not in pattern[1:], ENFORCE_DOMAIN_WILDCARD
+            if pattern.startswith("*") and pattern != "*":
+                assert pattern.startswith("*."), ENFORCE_DOMAIN_WILDCARD
+
+        self.app = app
+        self.allowed_hosts = list(allowed_hosts)
+        self.allow_any = "*" in allowed_hosts
+        self.www_redirect = www_redirect
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if self.allow_any or scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
+        headers = Headers(scope=scope)
+        host_header = headers.get("host", "")
+        host = host_header.split(":")[0]
+        if host_header.startswith("[") and "]" in host_header:
+            host = host_header.split("]", 1)[0] + "]"
+
+        is_valid_host = False
+        found_www_redirect = False
+        for pattern in self.allowed_hosts:
+            if host == pattern or (
+                pattern.startswith("*") and host.endswith(pattern[1:])
+            ):
+                is_valid_host = True
+                break
+            if "www." + host == pattern:
+                found_www_redirect = True
+
+        if is_valid_host:
+            await self.app(scope, receive, send)
+        elif found_www_redirect and self.www_redirect:
+            url = URL(scope=scope)
+            redirect_url = url.replace(netloc="www." + url.netloc)
+            response = RedirectResponse(url=str(redirect_url))
+            await response(scope, receive, send)
+        else:
+            response = PlainTextResponse("Invalid host header", status_code=400)
+            await response(scope, receive, send)
 
 
 def clean_directory_contents(path: Path) -> None:
@@ -73,7 +132,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.TRUSTED_HOSTS)
+app.add_middleware(IPv6AwareTrustedHostMiddleware, allowed_hosts=settings.trusted_hosts)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,

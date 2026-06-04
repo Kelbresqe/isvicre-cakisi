@@ -6,6 +6,11 @@ def test_qr_code_page(client: TestClient):
     assert response.status_code == 200
     assert "QR Kod Oluşturucu" in response.text
     assert "Metin veya URL" in response.text
+    assert 'name="text"' in response.text
+    assert 'name="fill_color"' in response.text
+    assert 'name="back_color"' in response.text
+    assert 'name="error_correction"' in response.text
+    assert 'name="size"' in response.text
 
 
 def test_qr_code_generation(client: TestClient):

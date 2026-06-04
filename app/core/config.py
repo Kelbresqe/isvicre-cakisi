@@ -98,6 +98,18 @@ class Settings(BaseSettings):
         description="Allowed CORS origins",
     )
 
+    @property
+    def trusted_hosts(self) -> list[str]:
+        """Return trusted hosts, adding local loopback hosts in development."""
+        if not self.is_dev:
+            return self.TRUSTED_HOSTS
+
+        return list(
+            dict.fromkeys(
+                [*self.TRUSTED_HOSTS, "localhost", "127.0.0.1", "::1", "[::1]"]
+            )
+        )
+
     # Allowed MIME Types
     ALLOWED_IMAGE_MIME_TYPES: set[str] = Field(
         default_factory=lambda: {

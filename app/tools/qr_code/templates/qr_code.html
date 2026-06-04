@@ -5,7 +5,9 @@
 {% block tool_content %}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ 
     fillColor: '#000000',
-    backColor: '#ffffff'
+    backColor: '#ffffff',
+    errorCorrection: 'M',
+    size: '10'
 }">
     <!-- Left Column: Input + Result -->
     <div class="lg:col-span-2 space-y-8">
@@ -13,6 +15,7 @@
         {% with 
             hx_post_url='/tools/qr-code/generate',
             input_type='text',
+            extra_form_fields='\n                <input type="hidden" name="fill_color" :value="fillColor">\n                <input type="hidden" name="back_color" :value="backColor">\n                <input type="hidden" name="error_correction" :value="errorCorrection">\n                <input type="hidden" name="size" :value="size">\n            ',
             button_text='QR Kod Oluştur',
             title='Metin veya URL',
             title_icon='<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>'
@@ -51,7 +54,7 @@
                 <!-- Error Correction -->
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-2">Hata Düzeltme Seviyesi</label>
-                    <select name="error_correction" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    <select name="error_correction" x-model="errorCorrection" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                         <option value="L">Düşük (%7)</option>
                         <option value="M" selected>Orta (%15)</option>
                         <option value="Q">Yüksek (%25)</option>
@@ -63,7 +66,7 @@
                 <!-- Size -->
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-2">Boyut</label>
-                    <select name="size" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    <select name="size" x-model="size" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
                         <option value="5">Küçük</option>
                         <option value="10" selected>Orta</option>
                         <option value="15">Büyük</option>
