@@ -10,7 +10,7 @@ def test_qr_code_page(client: TestClient):
 
 def test_qr_code_generation(client: TestClient):
     data = {
-        "content": "https://example.com",
+        "text": "https://example.com",
         "size": 10,
         "border": 4,
         "fill_color": "#000000",
@@ -23,6 +23,15 @@ def test_qr_code_generation(client: TestClient):
     assert "PNG İndir" in response.text
 
 
+def test_qr_code_still_accepts_content_field(client: TestClient):
+    response = client.post(
+        "/tools/qr-code/generate", data={"content": "https://example.com"}
+    )
+    assert response.status_code == 200
+    assert "data:image/png;base64" in response.text
+
+
 def test_qr_code_missing_content(client: TestClient):
     response = client.post("/tools/qr-code/generate", data={})
-    assert response.status_code == 422  # Validation error
+    assert response.status_code == 200
+    assert "QR kod oluşturmak için metin veya URL girin." in response.text

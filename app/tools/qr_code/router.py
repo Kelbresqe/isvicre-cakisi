@@ -91,7 +91,8 @@ async def page(request: Request):
 @router.post("/generate", response_class=HTMLResponse)
 async def generate_qr(
     request: Request,
-    content: str = Form(...),
+    content: str | None = Form(None),
+    text: str | None = Form(None),
     size: int = Form(10),  # Box size (pixel multiplier)
     border: int = Form(4),
     fill_color: str = Form("black"),
@@ -99,6 +100,15 @@ async def generate_qr(
     error_correction: str = Form("M"),  # L, M, Q, H
 ):
     start_time = time.time()
+    qr_content = (content or text or "").strip()
+    if not qr_content:
+        return """
+        <div class="bg-red-500/10 border border-red-500/50 rounded-xl p-4 animate-fade-in">
+            <h3 class="text-red-500 font-bold mb-1">Hata</h3>
+            <p class="text-red-300 text-sm">QR kod oluşturmak için metin veya URL girin.</p>
+        </div>
+        """
+
     try:
         # Map error correction level
         ec_map = {
@@ -117,7 +127,7 @@ async def generate_qr(
             border=max(0, min(border, 10)),
         )
 
-        qr.add_data(content)
+        qr.add_data(qr_content)
         qr.make(fit=True)
 
         img = qr.make_image(fill_color=fill_color, back_color=back_color)
@@ -128,7 +138,7 @@ async def generate_qr(
         img_str = base64.b64encode(buffered.getvalue()).decode()
 
         duration = (time.time() - start_time) * 1000
-        log_tool_call("qr-code", "success", duration, {"size": len(content)})
+        log_tool_call("qr-code", "success", duration, {"size": len(qr_content)})
 
         return f"""
         <div class="bg-slate-800/50 rounded-2xl p-8 border border-slate-700/50 shadow-xl text-center animate-fade-in">
