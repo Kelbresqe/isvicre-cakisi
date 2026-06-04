@@ -44,3 +44,21 @@ def test_rate_limit_logic():
 
     reset_rate_limits()
     assert len(rate_limiter._request_times) == 0
+
+
+def test_client_ip_ignores_spoofed_forwarded_for_from_public_client():
+    from app.core.rate_limit import rate_limiter
+
+    headers = [(b"x-forwarded-for", b"203.0.113.99")]
+    scope = {"type": "http", "client": ("198.51.100.10", 12345), "headers": headers}
+
+    assert rate_limiter._get_client_ip(Request(scope)) == "198.51.100.10"
+
+
+def test_client_ip_trusts_forwarded_for_from_loopback_proxy():
+    from app.core.rate_limit import rate_limiter
+
+    headers = [(b"x-forwarded-for", b"203.0.113.99, 127.0.0.1")]
+    scope = {"type": "http", "client": ("127.0.0.1", 12345), "headers": headers}
+
+    assert rate_limiter._get_client_ip(Request(scope)) == "203.0.113.99"

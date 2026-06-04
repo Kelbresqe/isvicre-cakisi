@@ -1,5 +1,7 @@
 import time
+from html import escape
 
+import bleach
 import markdown
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse
@@ -18,6 +20,34 @@ router = APIRouter(
 
 # 2. Şablon Ayarları
 templates = get_tool_templates(__file__)
+
+ALLOWED_MARKDOWN_TAGS = set(bleach.sanitizer.ALLOWED_TAGS).union(
+    {
+        "p",
+        "pre",
+        "code",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "th",
+        "td",
+        "br",
+        "hr",
+        "img",
+    }
+)
+ALLOWED_MARKDOWN_ATTRIBUTES = {
+    "a": ["href", "title", "rel", "target"],
+    "code": ["class"],
+    "img": ["src", "alt", "title"],
+}
 
 # 3. Aracı Kaydetme (Registry)
 tool_info = ToolInfo(
@@ -57,7 +87,7 @@ Araç, siz yazdıkça otomatik olarak HTML önizleme üretir. Kod blokları, tab
         },
         {
             "question": "HTML çıktısı güvenli mi?",
-            "answer": "Evet, Python markdown kütüphanesi kullanılarak güvenli HTML üretilir. Ancak çıktıyı kendi web sitenizde kullanırken mutlaka sanitize edin.",
+            "answer": "Evet, HTML çıktısı sunulmadan önce zararlı etiket ve özellikler temizlenir. Çıktıyı başka bir sistemde tekrar kullanacaksanız kendi ortamınızda da sanitize etmeniz önerilir.",
         },
     ],
     # Tool capabilities
@@ -100,6 +130,13 @@ async def render_markdown(
         html = markdown.markdown(
             content, extensions=["fenced_code", "tables", "nl2br", "sane_lists"]
         )
+        html = bleach.clean(
+            html,
+            tags=ALLOWED_MARKDOWN_TAGS,
+            attributes=ALLOWED_MARKDOWN_ATTRIBUTES,
+            protocols=["http", "https", "mailto"],
+            strip=True,
+        )
 
         duration = (time.time() - start_time) * 1000
         log_tool_call("markdown-preview", "success", duration, {"length": len(content)})
@@ -116,6 +153,6 @@ async def render_markdown(
         return f"""
         <div class="bg-red-500/10 border border-red-500/50 rounded-xl p-4 animate-fade-in">
             <h3 class="text-red-500 font-bold mb-1">Hata</h3>
-            <p class="text-red-300 text-sm">{str(e)}</p>
+            <p class="text-red-300 text-sm">{escape(str(e))}</p>
         </div>
         """

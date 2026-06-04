@@ -20,3 +20,14 @@ def test_markdown_rendering_empty(client: TestClient):
     response = client.post("/tools/markdown-preview/render", data={"content": ""})
     assert response.status_code == 200
     assert response.text.strip() == ""
+
+
+def test_markdown_rendering_sanitizes_raw_html(client: TestClient):
+    response = client.post(
+        "/tools/markdown-preview/render",
+        data={"content": "# Safe\n\n<script>alert(1)</script>"},
+    )
+    assert response.status_code == 200
+    assert "<h1>Safe</h1>" in response.text
+    assert "<script>" not in response.text
+    assert "alert(1)" in response.text

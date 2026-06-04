@@ -105,10 +105,7 @@ ToolRegistry.register(tool_info, router)
 
 def calculate_hash(data: bytes, algorithm: str) -> str:
     """Calculate hash of data using specified algorithm."""
-    if algorithm == "blake2b":
-        hasher = hashlib.blake2b()
-    else:
-        hasher = hashlib.new(algorithm)
+    hasher = hashlib.new(algorithm)
     hasher.update(data)
     return hasher.hexdigest()
 

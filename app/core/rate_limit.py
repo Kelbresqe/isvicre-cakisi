@@ -31,15 +31,17 @@ class RateLimiter:
         )
 
     def _get_client_ip(self, request: Request) -> str:
-        """Extract client IP from request, considering proxies."""
+        """Extract client IP from request.
+
+        Proxy headers are trusted only from loopback clients. Public clients can
+        spoof X-Forwarded-For, so direct client.host remains the default source.
+        """
+        client_host = request.client.host if request.client else "unknown"
         forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
+        if forwarded and client_host in {"127.0.0.1", "::1", "localhost"}:
             return forwarded.split(",")[0].strip()
 
-        if request.client:
-            return request.client.host
-
-        return "unknown"
+        return client_host
 
     def _get_redis_request_count(self, ip: str) -> Optional[int]:
         """Get request count from Redis. Returns None if Redis unavailable."""
@@ -97,19 +99,6 @@ class RateLimiter:
         except Exception as e:
             logger.debug("redis_upload_incr_failed", error=str(e))
             return False
-
-    def _get_client_ip(self, request: Request) -> str:
-        """Extract client IP from request, considering proxies."""
-        # Check X-Forwarded-For header first (for proxies)
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
-
-        # Fall back to direct client
-        if request.client:
-            return request.client.host
-
-        return "unknown"
 
     def check_rate_limit(self, request: Request) -> None:
         """

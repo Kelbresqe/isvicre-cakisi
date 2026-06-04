@@ -93,7 +93,7 @@ async def validate_and_load_image(file: UploadFile) -> tuple[Image.Image, str, i
         img.verify()  # Verify integrity
         img = Image.open(BytesIO(content))  # Re-open after verify
 
-        return img, file.filename, len(content)
+        return img, file.filename or "upload", len(content)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Geçersiz resim dosyası: {str(e)}")
 

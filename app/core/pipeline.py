@@ -11,7 +11,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 
 @dataclass
@@ -62,7 +62,7 @@ def _is_expired(metadata: PipelineFile) -> bool:
 
 def create_pipeline_file(
     source_tool_slug: str,
-    input_file_path: str,
+    input_file_path: str | Path,
     mime_type: str,
     ttl_seconds: int = 600,
     original_name: str = "",
@@ -116,7 +116,7 @@ def create_pipeline_file(
     return pipeline_id
 
 
-def resolve_pipeline_file(pipeline_id: str) -> Dict[str, any] | None:
+def resolve_pipeline_file(pipeline_id: str) -> Dict[str, Any] | None:
     """
     Resolve a pipeline file by ID.
 
@@ -198,7 +198,7 @@ def cleanup_expired_pipeline_files() -> int:
     return len(expired_ids)
 
 
-def get_pipeline_stats() -> Dict[str, any]:
+def get_pipeline_stats() -> Dict[str, Any]:
     """
     Get statistics about current pipeline usage.
 

@@ -9,8 +9,17 @@ from PIL import Image
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
-from app.core.utils import get_tool_templates
+from app.core.utils import get_tool_templates, safe_upload_path
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
+
+IMAGE_SUFFIX_BY_MIME = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/bmp": ".bmp",
+    "image/tiff": ".tiff",
+    "image/gif": ".gif",
+}
 
 router = APIRouter(
     prefix="/tools/image-cropper",
@@ -109,7 +118,9 @@ async def crop(
         else:
             if not file or not file.content_type.startswith("image/"):
                 raise ValueError("Geçerli resim gerekli")
-            temp = settings.TEMP_DIR / f"crop_in_{file.filename}"
+            temp = safe_upload_path(
+                "crop_in", IMAGE_SUFFIX_BY_MIME.get(file.content_type, "")
+            )
             with open(temp, "wb") as f:
                 f.write(await file.read())
             file_path = str(temp)
@@ -128,10 +139,10 @@ async def crop(
 
             try:
                 create_pipeline_file(
-                    "image-cropper",
-                    str(output),
-                    f"image/{(img.format or 'png').lower()}",
-                    output.name,
+                    source_tool_slug="image-cropper",
+                    input_file_path=str(output),
+                    mime_type=f"image/{(img.format or 'png').lower()}",
+                    original_name=output.name,
                 )
             except Exception:
                 pass

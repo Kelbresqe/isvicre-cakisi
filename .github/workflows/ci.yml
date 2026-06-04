@@ -41,13 +41,13 @@ jobs:
         run: uv sync --frozen
 
       - name: 🔍 Run Ruff linter
-        run: uv run ruff check app/ tests/
+        run: PYTHONPATH=. uv run ruff check app/ tests/
 
       - name: 🎨 Check Black formatting
-        run: uv run black --check app/ tests/
+        run: PYTHONPATH=. uv run black --check app/ tests/
 
       - name: 📝 Run MyPy type checking
-        run: uv run mypy app/ --ignore-missing-imports
+        run: PYTHONPATH=. uv run mypy app/ --ignore-missing-imports
 
   # ---------------------------------------------------------------------------
   # Job 2: Tests
@@ -76,7 +76,7 @@ jobs:
 
       - name: 🧪 Run tests with coverage
         run: |
-          uv run pytest tests/ -v --tb=short
+          PYTHONPATH=. uv run pytest tests/ -v --tb=short --cov=app --cov-report=term
 
       - name: 📊 Upload coverage to Codecov
         uses: codecov/codecov-action@v4

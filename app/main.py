@@ -4,16 +4,37 @@ import pkgutil
 import shutil
 from contextlib import asynccontextmanager
 from dataclasses import asdict
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 import app.tools as tools_pkg
 from app.core.config import settings
 from app.core.health import get_health_status, is_ready
 from app.tools.registry import Category, ToolRegistry
+
+settings.validate_production_safety()
+
+
+def clean_directory_contents(path: Path) -> None:
+    """Create a directory if needed and remove only its contents.
+
+    Docker runs the app as a non-root user. Removing /app/temp itself requires
+    write permission on /app, but removing files inside /app/temp only requires
+    write permission on the temp directory. This keeps startup safe in both
+    local and containerized environments.
+    """
+    path.mkdir(parents=True, exist_ok=True)
+    for child in path.iterdir():
+        if child.is_dir() and not child.is_symlink():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
 
 
 @asynccontextmanager
@@ -23,9 +44,7 @@ async def lifespan(app: FastAPI):
     """
     # Startup: Clean temp directory
     # Sunucu her başladığında temp klasörünü temizle ki disk dolmasın
-    if settings.TEMP_DIR.exists():
-        shutil.rmtree(settings.TEMP_DIR)
-    settings.TEMP_DIR.mkdir(parents=True, exist_ok=True)
+    clean_directory_contents(settings.TEMP_DIR)
 
     # Warm up Redis connection at startup
     try:
@@ -53,6 +72,26 @@ app = FastAPI(
     debug=settings.DEBUG,
     lifespan=lifespan,
 )
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.TRUSTED_HOSTS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
+
+def require_admin_token(request: Request) -> None:
+    if settings.is_dev:
+        return
+    if not settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=404, detail="Not Found")
+    scheme, _, token = request.headers.get("Authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or token != settings.ADMIN_API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
 
 # Mount Static Files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -107,7 +146,7 @@ async def health_check():
 
 
 @app.get("/ready", response_class=JSONResponse, tags=["Health"])
-async def readiness_check():
+async def readiness_check(_: None = Depends(require_admin_token)):
     """
     Readiness probe endpoint.
     Returns whether the application is ready to serve traffic.
@@ -197,7 +236,7 @@ async def sitemap(request: Request):
 
 
 @app.get("/metrics", response_class=Response, tags=["Monitoring"])
-async def prometheus_metrics():
+async def prometheus_metrics(_: None = Depends(require_admin_token)):
     """
     Prometheus metrics endpoint (v0.9.0).
     Exposes application metrics for Prometheus scraping.

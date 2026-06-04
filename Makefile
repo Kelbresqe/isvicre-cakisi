@@ -44,17 +44,17 @@ install:
 # Start development server with auto-reload
 dev:
 	@echo "🚀 Starting development server..."
-	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	PYTHONPATH=. uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Run tests
 test:
 	@echo "🧪 Running tests..."
-	uv run pytest tests/ -v
+	PYTHONPATH=. uv run pytest tests/ -v
 
 # Run tests with coverage
 test-cov:
 	@echo "🧪 Running tests with coverage..."
-	uv run pytest tests/ -v --cov=app --cov-report=html --cov-report=term
+	PYTHONPATH=. uv run pytest tests/ -v --cov=app --cov-report=html --cov-report=term
 
 # Run linter
 lint:
@@ -79,7 +79,7 @@ format-check:
 # Run type checker
 typecheck:
 	@echo "📝 Running type checker..."
-	uv run mypy app/ --ignore-missing-imports
+	PYTHONPATH=. uv run mypy app/ --ignore-missing-imports
 
 # Run all checks
 check: lint format-check typecheck
@@ -172,7 +172,7 @@ add-dev:
 # Start production server
 prod:
 	@echo "🚀 Starting production server..."
-	ENV=prod uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+	ENV=prod PYTHONPATH=. uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 
 # Health check
 health:

@@ -18,7 +18,7 @@ from app.core.image_utils import save_image
 from app.core.observability import log_tool_call, record_page_view
 from app.core.rate_limit import rate_limit_dependency
 from app.core.upload import validate_and_load_image
-from app.core.utils import get_random_tech_trivia, get_tool_templates
+from app.core.utils import get_random_tech_trivia, get_tool_templates, resolve_temp_file
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 # 1. Router Tanımlama
@@ -236,9 +236,9 @@ async def resize(
 
 @router.get("/download/{filename}")
 async def download(filename: str, background_tasks: BackgroundTasks):
-    file_path = settings.TEMP_DIR / filename
+    file_path = resolve_temp_file(filename)
 
-    if not file_path.exists():
+    if file_path is None or not file_path.exists():
         return HTMLResponse("Dosya bulunamadı veya süresi doldu.", status_code=404)
 
     # Dosyayı gönderdikten sonra sil

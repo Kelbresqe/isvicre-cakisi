@@ -9,7 +9,7 @@ from pypdf import PdfReader, PdfWriter
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
-from app.core.utils import get_tool_templates
+from app.core.utils import get_tool_templates, safe_upload_path
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
 router = APIRouter(
@@ -116,7 +116,7 @@ async def split(
         else:
             if not file or file.content_type != "application/pdf":
                 raise ValueError("Geçerli PDF gerekli")
-            temp = settings.TEMP_DIR / f"split_in_{file.filename}"
+            temp = safe_upload_path("split_in", ".pdf")
             with open(temp, "wb") as f:
                 f.write(await file.read())
             file_path = str(temp)
@@ -140,7 +140,10 @@ async def split(
 
             try:
                 create_pipeline_file(
-                    "pdf-splitter", str(output), "application/pdf", output.name
+                    source_tool_slug="pdf-splitter",
+                    input_file_path=str(output),
+                    mime_type="application/pdf",
+                    original_name=output.name,
                 )
             except Exception:
                 pass

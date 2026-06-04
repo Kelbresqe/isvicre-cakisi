@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
-from app.core.utils import get_random_tech_trivia, get_tool_templates
+from app.core.utils import get_random_tech_trivia, get_tool_templates, resolve_temp_file
 from app.tools.image_converter.utils import process_image
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
 
@@ -196,11 +196,9 @@ async def convert(
 
 @router.get("/download/{filename}")
 async def download(filename: str, background_tasks: BackgroundTasks):
-    from app.core.config import settings
+    file_path = resolve_temp_file(filename)
 
-    file_path = settings.TEMP_DIR / filename
-
-    if not file_path.exists():
+    if file_path is None or not file_path.exists():
         return HTMLResponse("Dosya bulunamadı veya süresi doldu.", status_code=404)
 
     # Dosyayı gönderdikten sonra sil

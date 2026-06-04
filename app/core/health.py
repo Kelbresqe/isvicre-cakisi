@@ -120,7 +120,7 @@ def get_health_status() -> HealthStatus:
     redis_status = checks.get("redis", {}).get("status")
     any_error = any(c.get("status") == "error" for c in checks.values())
 
-    if all_critical_ok and redis_status in ["ok", "disabled"]:
+    if all_critical_ok and redis_status in ["ok", "disabled", "unavailable"]:
         status = "healthy"
     elif any_error or redis_status == "error":
         status = "degraded"

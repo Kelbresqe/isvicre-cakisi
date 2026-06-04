@@ -9,8 +9,17 @@ from PIL.ExifTags import TAGS
 
 from app.core.config import settings
 from app.core.rate_limit import rate_limit_dependency
-from app.core.utils import get_tool_templates
+from app.core.utils import get_tool_templates, resolve_temp_file, safe_upload_path
 from app.tools.registry import Category, ToolInfo, ToolRegistry, ToolRelation
+
+IMAGE_SUFFIX_BY_MIME = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/bmp": ".bmp",
+    "image/tiff": ".tiff",
+    "image/gif": ".gif",
+}
 
 # Router
 router = APIRouter(
@@ -142,7 +151,9 @@ async def inspect_metadata(
             # Simple validation
             if not file.content_type.startswith("image/"):
                 raise ValueError("Sadece resim dosyaları kabul edilir")
-            temp_path = settings.TEMP_DIR / f"metadata_{file.filename}"
+            temp_path = safe_upload_path(
+                "metadata", IMAGE_SUFFIX_BY_MIME.get(file.content_type, "")
+            )
             with open(temp_path, "wb") as f:
                 f.write(await file.read())
             file_path = str(temp_path)
@@ -255,18 +266,17 @@ async def clean_metadata(
         duration = (time.time() - start_time) * 1000
         log_tool_call("image-metadata", "success", duration, {"cleaned": True})
 
-        # Return Success Card with Pipeline Options
-        return templates.TemplateResponse(
-            request=request,
-            name="components/success_card.html",  # We can reuse a generic success card or inline it. Let's inline for now to match other tools pattern or use a new component if I had one.
-            # Actually, I'll inline the HTML here to be safe and consistent with image-converter style
-            context={
-                "request": request,  # Required for url_for if used
-            },
-        )
-
-        # Wait, I can't easily inline if I use TemplateResponse without a template.
-        # I'll return HTML string like image-converter does.
+        pipeline_html = ""
+        if pipeline_id:
+            pipeline_html = (
+                '<div class="border-t border-slate-700/50 pt-4">'
+                + templates.get_template("components/pipeline_suggestions.html").render(
+                    pipeline_id=pipeline_id,
+                    current_tool="image-metadata",
+                    suggested_tools=tool_info.suggested_next,
+                )
+                + "</div>"
+            )
 
         return HTMLResponse(
             f"""
@@ -282,33 +292,23 @@ async def clean_metadata(
                     </div>
                 </div>
             </div>
-            
+
             <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-700/50 mb-6">
                 <p class="text-slate-300 text-sm">
                     Tüm EXIF, GPS ve kamera bilgileri başarıyla silindi. Görüntü kalitesi korundu.
                 </p>
             </div>
-            
+
             <div class="flex flex-col gap-4">
                 <div class="flex items-center justify-between gap-4">
-                    <a href="/tools/image-metadata/download/{output_filename}" 
+                    <a href="/tools/image-metadata/download/{output_filename}"
                        hx-boost="false"
                        class="flex-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         İndir
                     </a>
                 </div>
-                
-                <!-- Pipeline Suggestions -->
-                {
-            '<div class="border-t border-slate-700/50 pt-4">'
-            + templates.get_template("components/pipeline_suggestions.html").render(
-                pipeline_id=pipeline_id, current_tool="image-metadata", suggested_tools=tool_info.suggested_next
-            )
-            + "</div>"
-            if pipeline_id
-            else ""
-        }
+                {pipeline_html}
             </div>
         </div>
         """
@@ -324,11 +324,9 @@ async def clean_metadata(
 
 @router.get("/download/{filename}")
 async def download(filename: str, background_tasks: BackgroundTasks):
-    from app.core.config import settings
+    file_path = resolve_temp_file(filename)
 
-    file_path = settings.TEMP_DIR / filename
-
-    if not file_path.exists():
+    if file_path is None or not file_path.exists():
         return HTMLResponse("Dosya bulunamadı veya süresi doldu.", status_code=404)
 
     # Dosyayı gönderdikten sonra sil

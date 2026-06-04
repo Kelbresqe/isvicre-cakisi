@@ -21,6 +21,44 @@ Modern, hızlı ve çok amaçlı web tabanlı araç seti. Geliştiriciler, tasar
 
 ## 🛠 Araçlar (Tools)
 
+Bu depo yayınlanabilir durumdadır; kurulum, çalışma, test ve dağıtım notları aşağıda tek yerde toplanmıştır. Ayrıntılı sürüm geçmişi için `CHANGELOG.md`, katkı rehberi için `CONTRIBUTING.md` kullanın.
+
+## ⚙️ Ortam Değişkenleri
+
+Aşağıdaki değişkenler `.env` içinde tanımlanabilir:
+
+| Değişken | Açıklama | Varsayılan |
+| --- | --- | --- |
+| `ENV` | Çalışma ortamı | `DEV` |
+| `DEBUG` | Debug modu | `True` |
+| `DOCS_ENABLED` | `/docs` ve `/redoc` açık mı | `True` |
+| `REDIS_ENABLED` | Redis entegrasyonu | `true` |
+| `REDIS_URL` | Redis bağlantı URL'i | `redis://localhost:6379/0` |
+| `REDIS_KEY_PREFIX` | Redis anahtar öneki | `isvicre:` |
+| `REDIS_TTL_SECONDS` | Cache TTL | `3600` |
+| `MAX_UPLOAD_SIZE_MB` | Maksimum dosya yükleme boyutu | uygulama ayarı |
+
+## 🚚 Dağıtım Notları
+
+- Production dağıtımında `ENV=PROD`, `DEBUG=false`, `DOCS_ENABLED=false` ve `REDOC_ENABLED=false` kullanın.
+- Redis opsiyoneldir; erişilemezse uygulama in-memory fallback ile çalışır.
+- `health`, `ready` ve `metrics` uçları izleme için vardır; production ortamında erişim politikanızı reverse proxy veya network policy ile netleştirin.
+- Docker stack’i için `make docker-up` kullanılabilir; monitoring stack’i için `make docker-mon` opsiyoneldir.
+
+## 📦 Release Notes Özeti
+
+- **1.2.0**: Dark mode, PWA desteği ve klavye kısayolları eklendi.
+- **1.1.0**: Dice Roller, Hash Generator, Color Picker, Lorem Ipsum ve Base Converter eklendi.
+- **1.0.0**: Redis entegrasyonu, dağıtık cache/rate limit ve health check iyileştirmeleri eklendi.
+- **0.9.0**: Production Docker, metrics, structured logging ve CI/CD iyileştirildi.
+
+## ⚠️ Bilinen Sınırlamalar
+
+- Bazı operasyonel yüzeyler, deployment topolojisine bağlı olarak ek erişim kontrolü gerektirebilir.
+- Çoklu worker kurulumlarında process içi bellek kullanan bileşenler tutarsız davranabilir.
+- Dosya işleme akışlarında yayın öncesi güvenlik regresyon testleri çalıştırılmalıdır.
+
+
 ### Medya Araçları (8)
 
 | Araç                     | Açıklama                                         |
